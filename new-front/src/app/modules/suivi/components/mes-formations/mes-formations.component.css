@@ -1,0 +1,82 @@
+.mes-formations {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.mes-formations__header {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.mes-formations__titre {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--foreground, #1F2937);
+  margin: 0;
+}
+
+.chips-container {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.chip {
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: var(--chip-inactive-bg, transparent);
+  color: var(--chip-inactive-text, #6B7280);
+  border: 1px solid var(--chip-inactive-border, #E5E7EB);
+}
+
+.chip:hover {
+  border-color: var(--primary, #1C4FC3);
+}
+
+.chip--active {
+  background: var(--chip-active-bg, #DBEAFE);
+  color: var(--chip-active-text, #1C4FC3);
+  border-color: var(--chip-active-border, #BFDBFE);
+}
+
+.formations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.etat-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 64px 24px;
+  color: var(--muted-foreground, #6B7280);
+  text-align: center;
+}
+
+.etat-message--erreur {
+  color: var(--badge-red-text, #991B1B);
+}
+
+.bouton-reessayer {
+  padding: 8px 20px;
+  border-radius: var(--radius, 0.625rem);
+  background: var(--primary, #1C4FC3);
+  color: white;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.bouton-reessayer:hover {
+  opacity: 0.9;
+}

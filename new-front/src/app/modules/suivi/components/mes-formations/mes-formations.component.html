@@ -1,0 +1,38 @@
+<div class="mes-formations">
+  <div class="mes-formations__header">
+    <h1 class="mes-formations__titre">Mes formations</h1>
+
+    <div class="chips-container">
+      <button
+        *ngFor="let filtre of filtres"
+        type="button"
+        class="chip"
+        [class.chip--active]="filtreActif === filtre.valeur"
+        (click)="selectionnerFiltre(filtre.valeur)">
+        {{ filtre.label }}
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="etat-message">
+    <ng-icon name="lucideLoader" class="animate-spin" size="32"></ng-icon>
+    <p>Chargement de vos formations...</p>
+  </div>
+
+  <div *ngIf="error && !loading" class="etat-message etat-message--erreur">
+    <p>{{ error }}</p>
+    <button type="button" class="bouton-reessayer" (click)="chargerFormations()">Réessayer</button>
+  </div>
+
+  <div *ngIf="!loading && !error && cardsFiltrees.length === 0" class="etat-message">
+    <p>Aucune formation dans cette catégorie pour le moment.</p>
+  </div>
+
+  <div *ngIf="!loading && !error && cardsFiltrees.length > 0" class="formations-grid">
+    <app-formation-progression-card
+      *ngFor="let card of cardsFiltrees"
+      [progression]="card.progression"
+      [formationNom]="card.formationNom">
+    </app-formation-progression-card>
+  </div>
+</div>

@@ -1,0 +1,108 @@
+<div class="auth-layout">
+
+  <!-- ── LEFT: WebGL gradient-grid shader + branding ── -->
+  <div class="auth-layout__left" aria-hidden="true">
+    <app-shader-background />
+
+    <!-- CSS floating particle orbs (layer between shader and content) -->
+    <div class="fl-particles" aria-hidden="true">
+      <span class="fl-particle" style="--size:5px;--left:12%;--bot:22%;--delay:0s;--dur:9s;--drift:18px;--opacity:0.70"></span>
+      <span class="fl-particle" style="--size:7px;--left:34%;--bot:12%;--delay:1.4s;--dur:11s;--drift:-12px;--opacity:0.50"></span>
+      <span class="fl-particle" style="--size:4px;--left:56%;--bot:28%;--delay:2.8s;--dur:8s;--drift:22px;--opacity:0.65"></span>
+      <span class="fl-particle" style="--size:6px;--left:72%;--bot:16%;--delay:0.6s;--dur:10s;--drift:-8px;--opacity:0.55"></span>
+      <span class="fl-particle" style="--size:3px;--left:20%;--bot:8%;--delay:3.2s;--dur:7s;--drift:14px;--opacity:0.80"></span>
+      <span class="fl-particle" style="--size:8px;--left:85%;--bot:35%;--delay:1.8s;--dur:12s;--drift:-20px;--opacity:0.40"></span>
+      <span class="fl-particle" style="--size:4px;--left:45%;--bot:20%;--delay:4.0s;--dur:9s;--drift:10px;--opacity:0.60"></span>
+      <span class="fl-particle" style="--size:5px;--left:65%;--bot:10%;--delay:2.2s;--dur:10s;--drift:-15px;--opacity:0.70"></span>
+      <span class="fl-particle" style="--size:6px;--left:28%;--bot:30%;--delay:0.9s;--dur:8s;--drift:25px;--opacity:0.50"></span>
+      <span class="fl-particle" style="--size:3px;--left:90%;--bot:18%;--delay:3.6s;--dur:11s;--drift:-5px;--opacity:0.75"></span>
+    </div>
+
+    <div class="auth-layout__left-content">
+
+      <!-- Top-left logo -->
+      <div class="fl-logo">
+        <div class="fl-logo__mark">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+               fill="none" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+               aria-hidden="true" focusable="false">
+            <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2 .27-2.48 0-3c-.35-.55-1.5-1-3 0z"/>
+            <path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/>
+            <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/>
+            <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>
+          </svg>
+        </div>
+        <span class="fl-logo__name">FoundersLab</span>
+      </div>
+
+      <!-- Bottom-left brand block -->
+      <div class="fl-brand">
+        <p class="fl-brand__eyebrow">The Founder Platform</p>
+        <h2 class="fl-brand__heading">
+          <span class="fl-brand__line1">Connecting Founders</span>
+          <span class="fl-brand__line2">to Opportunities</span>
+        </h2>
+        <p class="fl-brand__desc">
+          FoundersLab brings together early-stage founders with the mentors,
+          investors, and events they need to grow from idea to traction.
+        </p>
+        <div class="fl-brand__pills">
+          <span class="fl-pill">2,400+ Founders</span>
+          <span class="fl-pill">180+ Events</span>
+          <span class="fl-pill">94% Satisfaction</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── RIGHT: clean white form panel ── -->
+  <div class="auth-layout__right">
+    <div class="auth-layout__form-wrapper">
+
+      <!-- Tab switcher -->
+      <nav class="auth-tabs" aria-label="Sign in or sign up">
+        <a
+          class="auth-tab"
+          [class.auth-tab--active]="isLogin()"
+          routerLink="/auth/login"
+          [attr.aria-current]="isLogin() ? 'page' : null"
+        >Sign in</a>
+        <a
+          class="auth-tab"
+          [class.auth-tab--active]="!isLogin()"
+          routerLink="/auth/register"
+          [attr.aria-current]="!isLogin() ? 'page' : null"
+        >Sign up</a>
+      </nav>
+
+      <!-- Heading -->
+      <h1 class="auth-heading">
+        @if (isLogin()) { Welcome back } @else { Create your account }
+      </h1>
+      <p class="auth-subheading">
+        @if (isLogin()) {
+          Sign in to continue to FoundersLab
+        } @else {
+          Join Tunisia's startup ecosystem
+        }
+      </p>
+
+      <!-- LoginComponent or SignupComponent -->
+      <router-outlet />
+
+      <!-- Bottom note -->
+      <p class="auth-bottom-note">
+        @if (isLogin()) {
+          Don't have an account?
+          <a routerLink="/auth/register" class="auth-note-link">Sign up &rarr;</a>
+        } @else {
+          Already have an account?
+          <a routerLink="/auth/login" class="auth-note-link">Sign in &rarr;</a>
+        }
+      </p>
+
+    </div>
+  </div>
+
+</div>

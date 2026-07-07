@@ -1,0 +1,30 @@
+.star-rating {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.star-rating__etoile {
+  background: none;
+  border: none;
+  padding: 2px;
+  cursor: pointer;
+  color: var(--border, #E5E7EB);
+  display: flex;
+  line-height: 0;
+}
+
+.star-rating--readonly .star-rating__etoile {
+  cursor: default;
+}
+
+.star-rating__etoile:disabled {
+  cursor: default;
+}
+
+/* Lucide est un jeu d'icônes "stroke" (contour) : on force un remplissage solide
+   pour distinguer clairement une étoile "active" d'une étoile vide. Bleu (--primary)
+   pour rester sur l'unique couleur d'accent du design system, pas de jaune/or. */
+::ng-deep .star-rating__icone--remplie svg {
+  fill: var(--primary, #1C4FC3);
+  stroke: var(--primary, #1C4FC3);
+}

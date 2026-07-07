@@ -1,0 +1,81 @@
+<div class="certs-page">
+
+  <div class="page-header">
+    <div class="section-label">Mes documents</div>
+    <h2 class="section-title">Mes Certificats</h2>
+    <p class="section-sub">Téléchargez vos certificats PDF ou partagez le lien de vérification.</p>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-wrap" *ngIf="loading">
+    <div class="spinner-lg"></div>
+    <p>Chargement de vos certificats...</p>
+  </div>
+
+  <!-- Error -->
+  <div class="alert alert-error" *ngIf="error">{{ error }}</div>
+
+  <!-- Empty -->
+  <div class="empty-state" *ngIf="!loading && !error && certificates.length === 0">
+    <div class="empty-icon">📄</div>
+    <h3>Aucun certificat pour l'instant</h3>
+    <p>Vos certificats apparaissent ici après validation de votre présence à un événement.</p>
+    <a routerLink="/events" class="btn-primary">Voir les événements</a>
+  </div>
+
+  <!-- Certificate list -->
+  <div class="certs-list" *ngIf="!loading && certificates.length > 0">
+    <div class="cert-card" *ngFor="let cert of certificates">
+
+      <!-- Left: icon -->
+      <div class="cert-icon">📜</div>
+
+      <!-- Center: info -->
+      <div class="cert-info">
+        <div class="cert-event">{{ cert.eventTitle }}</div>
+        <div class="cert-meta">
+          <span>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            {{ formatDate(cert.eventDate) }}
+          </span>
+          <span>Émis le {{ formatDate(cert.generatedAt) }}</span>
+        </div>
+        <div class="cert-token">
+          ID : <code>{{ cert.verificationToken.substring(0, 8).toUpperCase() }}...</code>
+        </div>
+      </div>
+
+      <!-- Right: actions -->
+      <div class="cert-actions">
+        <button class="btn-download"
+                (click)="download(cert)"
+                [disabled]="downloading === cert.id">
+          <span class="spinner-sm" *ngIf="downloading === cert.id"></span>
+          <svg *ngIf="downloading !== cert.id" width="14" height="14"
+               viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          {{ downloading === cert.id ? 'Téléchargement...' : 'PDF' }}
+        </button>
+
+        <button class="btn-copy" (click)="copyVerifyLink(cert.verificationToken)"
+                title="Copier le lien de vérification">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          Copier le lien
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,29 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'eureka-server'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['eureka-server:8761']
+        labels:
+          service: 'eureka-server'
+
+  - job_name: 'api-gateway'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['api-gateway:8091']
+        labels:
+          service: 'api-gateway'
+
+  - job_name: 'userpi'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['userpi:8081']
+        labels:
+          service: 'userpi'
+
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']

@@ -1,0 +1,28 @@
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router } from '@angular/router';
+import { filter, map, startWith } from 'rxjs/operators';
+
+@Component({
+  selector: 'app-auth-layout',
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './auth-layout.component.html',
+  styleUrl: './auth-layout.component.css',
+})
+export class AuthLayoutComponent {
+  private readonly router = inject(Router);
+
+  protected readonly isLogin = toSignal(
+    this.router.events.pipe(
+      filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+      map(e => !e.urlAfterRedirects.includes('/auth/register')),
+      startWith(!this.router.url.includes('/auth/register')),
+    ),
+    { initialValue: true },
+  );
+}

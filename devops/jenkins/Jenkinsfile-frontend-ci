@@ -1,0 +1,136 @@
+// Pipeline CI Frontend (Angular "FoundersLab", new-front/) :
+// npm install + lint + tests unitaires (Vitest, via le nouveau runner @angular/build:unit-test) + Sonar + image Docker
+//
+// IMPORTANT : au moment de l'écriture de ce pipeline, `ng test` échoue à la compilation
+// (NG8001/NG8002 sur <ng-icon> dans landing.component.html) — bug préexistant du code
+// frontend, indépendant de ce pipeline. Tant qu'il n'est pas corrigé dans le code Angular,
+// le stage "Tests unitaires" échouera systématiquement. Voir devops/README.md.
+pipeline {
+    agent any
+
+    tools {
+        nodejs 'node-20' // configuré dans Jenkins > Global Tool Configuration
+    }
+
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
+        DOCKERHUB_USER        = 'ton-dockerhub-user'
+        SONAR_TOKEN           = credentials('sonar-token')
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Install dependencies') {
+            steps {
+                dir('new-front') {
+                    sh 'npm ci'
+                }
+            }
+        }
+
+        stage('Lint') {
+            steps {
+                dir('new-front') {
+                    // --if-present : ne casse pas le pipeline si aucun script "lint" n'existe
+                    // (c'est le cas actuellement, aucun ESLint n'est configuré dans ce projet)
+                    sh 'npm run lint --if-present'
+                }
+            }
+        }
+
+        stage('Tests unitaires (Vitest via @angular/build:unit-test)') {
+            steps {
+                dir('new-front') {
+                    sh '''
+                        npx ng test \
+                          --watch=false \
+                          --coverage \
+                          --coverage-reporters=lcov \
+                          --coverage-reporters=text-summary \
+                          --reporters=default \
+                          --reporters=junit \
+                          --output-file=coverage/junit-results.xml
+                    '''
+                }
+            }
+            post {
+                always {
+                    junit 'new-front/coverage/junit-results.xml'
+                }
+            }
+        }
+
+        stage('Analyse SonarQube') {
+            steps {
+                dir('new-front') {
+                    withSonarQubeEnv('sonarqube-local') { // nom configuré dans Jenkins > Configure System
+                        // sonar-project.properties vit dans devops/frontend/, référencé explicitement
+                        // pour ne pas avoir à le dupliquer dans new-front/.
+                        sh '''
+                            npx sonar-scanner \
+                              -Dproject.settings=../devops/frontend/sonar-project.properties \
+                              -Dsonar.host.url=http://sonarqube:9000 \
+                              -Dsonar.login=${SONAR_TOKEN}
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
+        stage('Build production') {
+            steps {
+                dir('new-front') {
+                    sh 'npm run build -- --configuration production'
+                }
+            }
+        }
+
+        stage('Docker build') {
+            steps {
+                // Le Dockerfile vit dans devops/frontend/ ; contexte = racine du repo
+                // pour pouvoir COPY new-front/ et devops/frontend/nginx.conf ensemble.
+                sh """
+                    docker build \
+                      -f devops/frontend/Dockerfile \
+                      -t ${DOCKERHUB_USER}/frontend:${BUILD_NUMBER} \
+                      -t ${DOCKERHUB_USER}/frontend:latest \
+                      .
+                """
+            }
+        }
+
+        stage('Docker push') {
+            steps {
+                sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
+                sh "docker push ${DOCKERHUB_USER}/frontend:${BUILD_NUMBER}"
+                sh "docker push ${DOCKERHUB_USER}/frontend:latest"
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "CI frontend terminé avec succès — build #${BUILD_NUMBER}"
+        }
+        failure {
+            echo "CI frontend a échoué — voir les logs ci-dessus"
+        }
+        always {
+            sh 'docker logout || true'
+        }
+    }
+}

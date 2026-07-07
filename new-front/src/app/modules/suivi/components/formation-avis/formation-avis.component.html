@@ -1,0 +1,107 @@
+<div class="avis-tab">
+
+  <!-- Statistiques -->
+  <section class="section">
+    <h2 class="section__titre">Note moyenne</h2>
+
+    <div *ngIf="loadingStats" class="etat-message">
+      <p>Chargement...</p>
+    </div>
+
+    <div *ngIf="erreurStats && !loadingStats" class="etat-message etat-message--erreur">
+      <p>{{ erreurStats }}</p>
+      <button type="button" class="bouton-reessayer" (click)="chargerStats()">Réessayer</button>
+    </div>
+
+    <div *ngIf="stats && !loadingStats && !erreurStats" class="stats">
+      <div class="stats__moyenne">
+        <span class="stats__note">{{ stats.noteMoyenne | number: '1.1-1' }}</span>
+        <app-star-rating [value]="stats.noteMoyenne" [readonly]="true"></app-star-rating>
+        <span class="stats__total">{{ stats.nombreAvis }} avis</span>
+      </div>
+
+      <div class="stats__repartition">
+        <div *ngFor="let note of [5, 4, 3, 2, 1]" class="repartition-ligne">
+          <span class="repartition-ligne__label">{{ note }} ★</span>
+          <div class="repartition-ligne__barre-fond">
+            <div class="repartition-ligne__barre" [style.width.%]="hauteurBarre(note)"></div>
+          </div>
+          <span class="repartition-ligne__compte">{{ stats.repartitionNotes[note] }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Formulaire d'ajout -->
+  <section class="section">
+    <h2 class="section__titre">Laisser un avis</h2>
+
+    <form class="formulaire-avis" (ngSubmit)="soumettre()">
+      <div class="champ">
+        <label class="champ__label">Note</label>
+        <app-star-rating
+          [value]="formulaire.controls.note.value"
+          (valueChange)="formulaire.controls.note.setValue($event)">
+        </app-star-rating>
+      </div>
+
+      <div class="champ">
+        <label class="champ__label" for="commentaire">Commentaire (optionnel)</label>
+        <textarea
+          id="commentaire"
+          class="champ__textarea"
+          rows="3"
+          [maxlength]="commentaireMaxLength"
+          [formControl]="formulaire.controls.commentaire"
+          placeholder="Partagez votre expérience sur cette formation...">
+        </textarea>
+        <span class="champ__compteur">
+          {{ formulaire.controls.commentaire.value.length }}/{{ commentaireMaxLength }}
+        </span>
+      </div>
+
+      <div *ngIf="erreurSoumission" class="message message--erreur">{{ erreurSoumission }}</div>
+      <div *ngIf="soumissionReussie" class="message message--succes">Votre avis a bien été enregistré.</div>
+
+      <button type="submit" class="bouton-soumettre" [disabled]="soumissionEnCours">
+        {{ soumissionEnCours ? 'Envoi...' : "Envoyer l'avis" }}
+      </button>
+    </form>
+  </section>
+
+  <!-- Liste des avis -->
+  <section class="section">
+    <h2 class="section__titre">Avis des apprenants</h2>
+
+    <div *ngIf="loadingAvis" class="etat-message">
+      <p>Chargement...</p>
+    </div>
+
+    <div *ngIf="erreurAvis && !loadingAvis" class="etat-message etat-message--erreur">
+      <p>{{ erreurAvis }}</p>
+      <button type="button" class="bouton-reessayer" (click)="chargerAvis(0)">Réessayer</button>
+    </div>
+
+    <div *ngIf="!loadingAvis && !erreurAvis && avis.length === 0" class="etat-message">
+      <p>Aucun avis pour cette formation pour le moment. Soyez le premier à en laisser un !</p>
+    </div>
+
+    <ul *ngIf="!loadingAvis && !erreurAvis && avis.length > 0" class="avis-liste">
+      <li *ngFor="let item of avis" class="avis-item">
+        <div class="avis-item__header">
+          <app-star-rating [value]="item.note" [readonly]="true"></app-star-rating>
+          <span class="avis-item__auteur">{{ auteurAnonyme(item) }}</span>
+          <span class="avis-item__date">{{ item.dateCreation | date: 'dd/MM/yyyy' }}</span>
+        </div>
+        <p *ngIf="item.commentaire" class="avis-item__commentaire">{{ item.commentaire }}</p>
+      </li>
+    </ul>
+
+    <div *ngIf="!loadingAvis && !erreurAvis && totalPages > 1" class="pagination">
+      <button type="button" [disabled]="pageActuelle === 0" (click)="pagePrecedente()">← Précédent</button>
+      <span>Page {{ pageActuelle + 1 }} / {{ totalPages }}</span>
+      <button type="button" [disabled]="pageActuelle >= totalPages - 1" (click)="pageSuivante()">Suivant →</button>
+    </div>
+  </section>
+
+</div>

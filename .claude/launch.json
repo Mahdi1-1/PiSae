@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "new-front",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "new-front", "run", "start"],
+      "port": 4200
+    }
+  ]
+}

@@ -1,0 +1,221 @@
+<p>form-user works!</p>
+<div class="fu-page">
+
+  <!-- ── back link ─────────────────────────────────────────────── -->
+  <button class="back-btn" type="button" (click)="goBack()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+    Retour à la liste
+  </button>
+
+  <!-- ── page header ───────────────────────────────────────────── -->
+  <div class="fu-header">
+    <p class="fu-eyebrow">Administration</p>
+    <h1 class="fu-title">
+      {{ isEditMode ? 'Modifier l\'utilisateur' : 'Créer un utilisateur' }}
+    </h1>
+    <p class="fu-sub">
+      {{ isEditMode
+          ? 'Modifiez les informations ci-dessous puis enregistrez.'
+          : 'Remplissez le formulaire pour ajouter un nouvel utilisateur.' }}
+    </p>
+  </div>
+
+  <!-- ── loading skeleton (edit mode) ─────────────────────────── -->
+  <div class="skeleton-card" *ngIf="isLoading">
+    <div class="sk-row">
+      <div class="sk-block"></div>
+      <div class="sk-block"></div>
+    </div>
+    <div class="sk-block full"></div>
+    <div class="sk-block full"></div>
+    <div class="sk-block short"></div>
+  </div>
+
+  <!-- ── alerts ────────────────────────────────────────────────── -->
+  <div class="alert success" *ngIf="successMessage">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+      <polyline points="22 4 12 14.01 9 11.01"/>
+    </svg>
+    {{ successMessage }}
+  </div>
+
+  <div class="alert error" *ngIf="errorMessage">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="12" y1="8" x2="12" y2="12"/>
+      <line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+    {{ errorMessage }}
+  </div>
+
+  <!-- ── form card ─────────────────────────────────────────────── -->
+  <div class="fu-card" *ngIf="!isLoading">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+      <!-- section: identité -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <span class="section-num">01</span> Identité
+        </h3>
+        <div class="row-2">
+
+          <!-- nom -->
+          <div class="fg">
+            <label for="fu-name">Nom</label>
+            <input id="fu-name" type="text" formControlName="name"
+              [class.err]="f['name'].invalid && f['name'].touched"
+              placeholder="Ex : Dupont"/>
+            <span class="ferr" *ngIf="f['name'].touched && f['name'].hasError('required')">
+              Le nom est requis
+            </span>
+            <span class="ferr" *ngIf="f['name'].touched && f['name'].hasError('minlength')">
+              Minimum 2 caractères
+            </span>
+          </div>
+
+          <!-- prénom -->
+          <div class="fg">
+            <label for="fu-prenom">Prénom</label>
+            <input id="fu-prenom" type="text" formControlName="prenom"
+              [class.err]="f['prenom'].invalid && f['prenom'].touched"
+              placeholder="Ex : Jean"/>
+            <span class="ferr" *ngIf="f['prenom'].touched && f['prenom'].hasError('required')">
+              Le prénom est requis
+            </span>
+            <span class="ferr" *ngIf="f['prenom'].touched && f['prenom'].hasError('minlength')">
+              Minimum 2 caractères
+            </span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- section: compte -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <span class="section-num">02</span> Compte
+        </h3>
+
+        <!-- email -->
+        <div class="fg">
+          <label for="fu-email">Adresse e-mail</label>
+          <div class="input-wrap">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+            <input id="fu-email" type="email" formControlName="email"
+              [class.err]="f['email'].invalid && f['email'].touched"
+              placeholder="jean.dupont@example.com"/>
+          </div>
+          <span class="ferr" *ngIf="f['email'].touched && f['email'].hasError('required')">
+            L'e-mail est requis
+          </span>
+          <span class="ferr" *ngIf="f['email'].touched && f['email'].hasError('email')">
+            Adresse e-mail invalide
+          </span>
+        </div>
+
+        <!-- password -->
+        <div class="fg">
+          <label for="fu-password">
+            Mot de passe
+            <span class="label-hint" *ngIf="isEditMode">(laisser vide pour ne pas modifier)</span>
+          </label>
+          <div class="input-wrap">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <input id="fu-password" type="password" formControlName="password"
+              [class.err]="f['password'].invalid && f['password'].touched"
+              [placeholder]="isEditMode ? 'Nouveau mot de passe (optionnel)' : 'Minimum 6 caractères'"/>
+          </div>
+          <span class="ferr" *ngIf="f['password'].touched && f['password'].hasError('required')">
+            Le mot de passe est requis
+          </span>
+          <span class="ferr" *ngIf="f['password'].touched && f['password'].hasError('minlength')">
+            Minimum 6 caractères
+          </span>
+        </div>
+
+      </div>
+
+      <!-- section: rôle & statut -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <span class="section-num">03</span> Rôle & Statut
+        </h3>
+        <div class="row-2">
+
+          <!-- role -->
+          <div class="fg">
+            <label for="fu-role">Rôle</label>
+            <div class="sel-wrap">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+              <select id="fu-role" formControlName="role"
+                [class.err]="f['role'].invalid && f['role'].touched">
+                <option value="" disabled>Choisir un rôle…</option>
+                <option *ngFor="let r of roles" [value]="r">{{ r }}</option>
+              </select>
+              <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </div>
+            <span class="ferr" *ngIf="f['role'].touched && f['role'].hasError('required')">
+              Le rôle est requis
+            </span>
+          </div>
+
+          <!-- statut (edit only) -->
+          <div class="fg" *ngIf="isEditMode">
+            <label for="fu-statut">Statut</label>
+            <div class="sel-wrap">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+              <select id="fu-statut" formControlName="statut">
+                <option value="active">Actif</option>
+                <option value="inactive">Inactif</option>
+              </select>
+              <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── actions ──────────────────────────────────────────── -->
+      <div class="form-actions">
+        <button type="button" class="btn-ghost" (click)="goBack()" [disabled]="isSubmitting">
+          Annuler
+        </button>
+        <button type="submit" class="btn-primary" [disabled]="isSubmitting">
+          <span class="spin" *ngIf="isSubmitting"></span>
+          <svg *ngIf="!isSubmitting" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path *ngIf="isEditMode" d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v14a2 2 0 0 1-2 2z"/>
+            <polyline *ngIf="isEditMode" points="17 21 17 13 7 13 7 21"/>
+            <polyline *ngIf="isEditMode" points="7 3 7 8 15 8"/>
+            <line *ngIf="!isEditMode" x1="12" y1="5" x2="12" y2="19"/>
+            <line *ngIf="!isEditMode" x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          {{ isSubmitting
+              ? (isEditMode ? 'Enregistrement…' : 'Création…')
+              : (isEditMode ? 'Enregistrer les modifications' : 'Créer l\'utilisateur') }}
+        </button>
+      </div>
+
+    </form>
+  </div><!-- /fu-card -->
+
+</div><!-- /fu-page -->

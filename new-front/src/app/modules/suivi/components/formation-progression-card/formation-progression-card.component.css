@@ -1,0 +1,73 @@
+.formation-card {
+  display: block;
+  background: var(--card, #ffffff);
+  border: 1px solid var(--border, #E5E7EB);
+  border-radius: var(--radius, 0.625rem);
+  padding: 20px 24px;
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.formation-card:hover {
+  border-color: var(--primary, #1C4FC3);
+  box-shadow: 0 4px 16px rgba(28, 79, 195, 0.08);
+}
+
+.formation-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.formation-card__nom {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--foreground, #1F2937);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.statut-badge {
+  flex-shrink: 0;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.statut-badge--neutral {
+  background: var(--badge-neutral-bg, #F3F4F6);
+  color: var(--badge-neutral-text, #364153);
+}
+
+.statut-badge--blue {
+  background: var(--badge-blue-bg, #DBEAFE);
+  color: var(--badge-blue-text, #1C4FC3);
+}
+
+.statut-badge--green {
+  background: var(--badge-green-bg, #D1FAE5);
+  color: var(--badge-green-text, #065F46);
+}
+
+.formation-card__progress-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.formation-card__progress-row hlm-progress {
+  flex: 1;
+}
+
+.formation-card__pourcentage {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary, #1C4FC3);
+  min-width: 38px;
+  text-align: right;
+}

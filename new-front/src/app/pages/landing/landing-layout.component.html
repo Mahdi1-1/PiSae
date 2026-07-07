@@ -1,0 +1,255 @@
+<!-- ═══════════════════════════════════════════════════════
+     3-PILL FLOATING NAVBAR
+     ═══════════════════════════════════════════════════════ -->
+<header class="navbar-host" [class.scrolled]="scrolled()">
+
+  <div class="navbar-wrapper" [@navSettle]="settleState()">
+
+    <!-- ── Left pill: Logo ── -->
+    <a routerLink="/" class="pill pill-logo" [@pillLeft]="pillState()">
+      <div class="logo-icon">
+        <ng-icon name="lucideRocket" size="18" class="icon-on-dark" />
+      </div>
+      <span class="logo-text">FoundersLab</span>
+    </a>
+
+    <!-- ── Center pill: Navigation links ── -->
+    <nav class="pill pill-nav" [@pillCenter]="pillState()" aria-label="Primary navigation">
+      @for (link of filteredNavLinks(); track link.id) {
+        @if (link.type === 'route') {
+          <a class="nav-link" [routerLink]="link.route" [class.active]="activeLink() === link.id"
+            (click)="setActive(link.id)">
+            {{ link.label }}
+          </a>
+        } @else {
+          <button class="nav-link" [class.active]="activeLink() === link.id" (click)="scrollTo(link.anchor!)">
+            {{ link.label }}
+          </button>
+        }
+      }
+    </nav>
+
+    <!-- ── Right pill: CTA — auth-aware ── -->
+    <div class="pill pill-cta" [@pillRight]="pillState()">
+
+      <!-- Notifications bell -->
+      @if (isLoggedIn()) {
+      <div class="user-menu" style="margin-right: 8px;">
+        <button class="theme-toggle" (click)="showNotifications.set(!showNotifications())" aria-label="Notifications"
+          style="position: relative;">
+          <ng-icon name="lucideBell" size="16" />
+          @if (unreadCount() > 0) {
+          <span
+            style="position: absolute; top: -2px; right: -2px; background: #EF4444; color: white; font-size: 8px; font-weight: 800; width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white;">
+            {{ unreadCount() }}
+          </span>
+          }
+        </button>
+        @if (showNotifications()) {
+        <div class="user-dropdown" style="width: 280px; padding: 0; max-height: 400px; overflow-y: auto;">
+          <div
+            style="padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 12px; font-weight: 700;">Notifications</span>
+            <button (click)="markAllRead()"
+              style="font-size: 10px; color: #3B82F6; background: transparent; border: none; cursor: pointer;">Tout
+              lire</button>
+          </div>
+          @if (notifications().length === 0) {
+          <div style="padding: 24px; text-align: center; color: #94A3B8; font-size: 11px;">Aucune notification</div>
+          }
+          @for (n of notifications(); track n.id) {
+          <div (click)="markRead(n)"
+            style="padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: background 0.2s;"
+            [style.background]="n.read ? 'transparent' : 'rgba(59,130,246,0.05)'">
+            <div style="display: flex; gap: 10px; align-items: flex-start;">
+              <div [style.background]="getNotifColor(n.type)"
+                style="width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <ng-icon [name]="getNotifIcon(n.type)" size="12" [style.color]="getNotifTextColor(n.type)" />
+              </div>
+              <div style="flex: 1; min-width: 0;">
+                <div style="font-size: 11px; font-weight: 700; color: white;">{{ getNotifTitle(n.type) }}</div>
+                <div style="font-size: 11px; color: #94A3B8; line-height: 1.4; margin-top: 2px;">{{ n.message }}</div>
+                <div style="font-size: 9px; color: #64748B; margin-top: 4px;">{{ n.createdAt | date:'HH:mm' }}</div>
+              </div>
+              @if (!n.read) {
+              <div style="width: 6px; height: 6px; border-radius: 50%; background: #3B82F6; margin-top: 4px;"></div>
+              }
+            </div>
+          </div>
+          }
+        </div>
+        }
+      </div>
+      }
+
+      <button class="theme-toggle" (click)="toggleTheme()"
+        [attr.aria-label]="isDark() ? 'Switch to light mode' : 'Switch to dark mode'" [attr.aria-pressed]="isDark()"
+        title="Toggle theme">
+        <ng-icon [name]="isDark() ? 'lucideSun' : 'lucideMoon'" size="16" />
+      </button>
+
+      @if (isLoggedIn()) {
+      @if (canAccessDashboard()) {
+      <a routerLink="/app/dashboard" class="cta-ghost dashboard-link">
+        <ng-icon name="lucideLayoutDashboard" size="14" />
+        Dashboard
+      </a>
+      }
+      <!-- User dropdown -->
+      <div class="user-menu">
+        <button class="user-menu-trigger" (click)="toggleUserDropdown()">
+          <div class="user-avatar">{{ userInitial() }}</div>
+          <ng-icon name="lucideChevronDown" size="12" />
+        </button>
+        @if (userDropdownOpen()) {
+        <div class="user-dropdown">
+          <div class="user-dropdown-header">
+            <span class="user-dropdown-email">{{ userName() }}</span>
+          </div>
+          <a routerLink="/profile" class="user-dropdown-item" (click)="closeUserDropdown()">
+            <ng-icon name="lucideUser" size="14" /> View Profile
+          </a>
+          <a routerLink="/profile" [queryParams]="{tab:'security'}" class="user-dropdown-item"
+            (click)="closeUserDropdown()">
+            <ng-icon name="lucideSettings" size="14" /> Settings
+          </a>
+          <div class="user-dropdown-divider"></div>
+          <button class="user-dropdown-item user-dropdown-logout" (click)="logout(); closeUserDropdown()">
+            <ng-icon name="lucideLogOut" size="14" /> Sign out
+          </button>
+        </div>
+        }
+      </div>
+      } @else {
+      <a routerLink="/auth/login" class="cta-ghost">Log in</a>
+      <a routerLink="/auth/signup" class="cta-primary ripple-btn">Get Started</a>
+      }
+    </div>
+
+    <!-- ── Mobile: single merged pill ── -->
+    <div class="pill pill-mobile">
+      <div class="logo-icon logo-icon--sm">
+        <ng-icon name="lucideRocket" size="14" class="icon-on-dark" />
+      </div>
+      <span class="logo-text">FoundersLab</span>
+      <button class="hamburger" (click)="mobileMenu.set(!mobileMenu())" aria-label="Toggle menu">
+        <ng-icon [name]="mobileMenu() ? 'lucideX' : 'lucideMenu'" size="18" />
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ── Announcement badge ── -->
+  @if (showBadge()) {
+  <div class="announcement-badge" [@badge] role="status">
+    <span class="badge-dot"></span>
+    <span>New &mdash; Welcome to FoundersLab&nbsp;✦</span>
+    <button class="badge-dismiss" (click)="dismissBadge()" aria-label="Dismiss">
+      <ng-icon name="lucideX" size="12" />
+    </button>
+  </div>
+  }
+
+  <!-- ── Mobile menu overlay ── -->
+  @if (mobileMenu()) {
+  <div class="mobile-menu" [@mobileOverlay] role="dialog" aria-modal="true">
+    @for (link of filteredNavLinks(); track link.id) {
+    @if (link.type === 'route') {
+    <a class="mobile-link" [routerLink]="link.route" (click)="mobileMenu.set(false); setActive(link.id)">
+      {{ link.label }}
+    </a>
+    } @else {
+    <button class="mobile-link" (click)="scrollTo(link.anchor!)">
+      {{ link.label }}
+    </button>
+    }
+    }
+    <div class="mobile-divider"></div>
+    @if (isLoggedIn()) {
+    <a routerLink="/profile" class="mobile-link" (click)="mobileMenu.set(false)">View Profile</a>
+    <a routerLink="/profile" [queryParams]="{tab:'security'}" class="mobile-link"
+      (click)="mobileMenu.set(false)">Settings</a>
+    @if (canAccessDashboard()) {
+    <a routerLink="/app/dashboard" class="mobile-link" (click)="mobileMenu.set(false)">Dashboard</a>
+    }
+    <button class="mobile-link" (click)="logout()">Sign out</button>
+    } @else {
+    <a routerLink="/auth/login" class="mobile-link" (click)="mobileMenu.set(false)">Log in</a>
+    <a routerLink="/auth/signup" class="mobile-cta" (click)="mobileMenu.set(false)">Get Started Free</a>
+    }
+  </div>
+  }
+
+</header>
+
+<!-- ═══ PAGE CONTENT ═══ -->
+<main class="page-content">
+  <router-outlet />
+</main>
+
+<!-- ═══════════════════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-grid">
+
+      <!-- Brand -->
+      <div>
+        <div class="footer-brand">
+          <div class="logo-icon">
+            <ng-icon name="lucideRocket" size="16" class="icon-on-dark" />
+          </div>
+          <span class="footer-brand-name">FoundersLab</span>
+        </div>
+        <p class="footer-brand-desc">
+          Empowering the next generation of founders with mentorship,
+          funding, and a world-class community.
+        </p>
+        <div class="footer-live">
+          <span class="live-dot"></span>
+          Platform is live
+        </div>
+      </div>
+
+      <!-- Platform -->
+      <div>
+        <p class="footer-heading">Platform</p>
+        <div class="footer-links">
+          <a routerLink="/app/community" class="footer-link">Community</a>
+        </div>
+      </div>
+
+      <!-- Company -->
+      <div>
+        <p class="footer-heading">Company</p>
+        <div class="footer-links">
+          <button class="footer-link footer-link--btn" (click)="scrollTo('about')">About</button>
+          <button class="footer-link footer-link--btn" (click)="scrollTo('services')">Services</button>
+          <button class="footer-link footer-link--btn" (click)="scrollTo('contact')">Contact</button>
+        </div>
+      </div>
+
+      <!-- Get Started -->
+      <div>
+        <p class="footer-heading">Get Started</p>
+        <div class="footer-links">
+          @if (!isLoggedIn()) {
+          <a routerLink="/auth/signup" class="footer-link">Create account</a>
+          <a routerLink="/auth/login" class="footer-link">Sign in</a>
+          } @else {
+          @if (canAccessDashboard()) {
+          <a routerLink="/app/dashboard" class="footer-link">Dashboard</a>
+          }
+          }
+        </div>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      <span>&copy; 2026 FoundersLab. All rights reserved.</span>
+      <span class="footer-tagline">Built for founders, by founders.</span>
+    </div>
+  </div>
+</footer>

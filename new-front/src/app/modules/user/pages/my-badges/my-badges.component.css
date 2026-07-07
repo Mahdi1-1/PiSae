@@ -1,0 +1,51 @@
+.badges-page {
+  padding: 32px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.page-header { margin-bottom: 32px; }
+.section-label { font-size: 12px; font-weight: 600; color: #c9a02a; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+.section-title { font-size: 24px; font-weight: 700; color: #0d1b2a; margin: 0 0 6px; }
+.section-sub   { font-size: 14px; color: #64748b; margin: 0; }
+
+.loading-wrap  { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 60px; color: #64748b; }
+.spinner-lg    { width: 36px; height: 36px; border: 3px solid #e2e8f0; border-top-color: #1e3a6e; border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.alert-error   { background: #fef2f2; color: #b91c1c; border-radius: 8px; padding: 12px 16px; font-size: 14px; }
+
+.empty-state   { text-align: center; padding: 60px 20px; color: #64748b; }
+.empty-icon    { font-size: 48px; margin-bottom: 16px; }
+.empty-state h3 { font-size: 18px; color: #0d1b2a; margin-bottom: 8px; }
+.empty-state p  { font-size: 14px; margin-bottom: 24px; }
+.btn-primary   { background: #1e3a6e; color: #fff; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 500; }
+.btn-primary:hover { background: #0d1b2a; }
+
+.badges-grid   { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+
+.badge-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.badge-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+
+.badge-circle  { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.badge-icon    { font-size: 32px; }
+
+.badge-info    { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+.badge-label   { font-size: 14px; font-weight: 600; color: #0d1b2a; line-height: 1.4; }
+.badge-type-chip { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.badge-date    { font-size: 12px; color: #94a3b8; display: flex; align-items: center; justify-content: center; gap: 4px; }
+.badge-series  { font-size: 12px; color: #64748b; }
+
+.badges-summary { margin-top: 24px; text-align: center; font-size: 13px; color: #94a3b8; }

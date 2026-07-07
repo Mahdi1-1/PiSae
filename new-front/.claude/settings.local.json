@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find . -name \"*.ts\" -type f -exec grep -l \"hover:bg-gray-50[^0-9]\" {})",
+      "Bash(xargs -I{} grep \"hover:bg-gray-50\" {})",
+      "Bash(find /Users/slimane/FoundersLab -maxdepth 2 -name tailwind.config.* -type f)",
+      "Bash(npx tsc *)",
+      "Bash(npm install *)",
+      "Bash(xargs grep *)",
+      "Bash(curl -v http://localhost:8091/api/legal-procedures/my-procedures -H \"X-User-Id: 1\")",
+      "Bash(npx ng *)",
+      "Bash(node -e \"const css = require\\('fs'\\).readFileSync\\('node_modules/bootstrap/dist/css/bootstrap.min.css','utf8'\\); const m = css.match\\(/\\\\.modal-backdrop\\\\{[^}]*\\\\}/g\\); console.log\\(m && m.join\\('\\\\n'\\)\\);\")",
+      "Bash(./mvnw -q compile)",
+      "Bash(\"D:\\\\PI\\\\pi farah\\\\pi farah\\\\api-gateway\\\\mvnw.cmd\" -f \"D:\\\\PI\\\\pi farah\\\\pi farah\\\\api-gateway\\\\pom.xml\" -q compile)",
+      "PowerShell(& \"D:\\\\PI\\\\pi farah\\\\pi farah\\\\api-gateway\\\\mvnw.cmd\" -f \"D:\\\\PI\\\\pi farah\\\\pi farah\\\\api-gateway\\\\pom.xml\" -q compile 2>&1 | Select-Object -Last 25)",
+      "Bash(python3 -c \"import sys,json; lines=sys.stdin.read\\(\\).strip\\(\\).split\\('\\\\n'\\); [print\\(json.loads\\(l\\).get\\('content',''\\)[:2000] if isinstance\\(json.loads\\(l\\).get\\('content',''\\),str\\) else ''\\) for l in lines[-5:] if l]\")"
+    ]
+  }
+}

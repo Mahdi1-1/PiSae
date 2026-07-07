@@ -1,0 +1,13 @@
+<a class="formation-card" [routerLink]="['/app/formations', progression.formationId]">
+  <div class="formation-card__header">
+    <h3 class="formation-card__nom">{{ formationNom }}</h3>
+    <span class="statut-badge" [ngClass]="statutBadgeClass">{{ statutLabel }}</span>
+  </div>
+
+  <div class="formation-card__progress">
+    <div class="formation-card__progress-row">
+      <hlm-progress [value]="progression.pourcentage" [max]="100" />
+      <span class="formation-card__pourcentage">{{ progression.pourcentage }}%</span>
+    </div>
+  </div>
+</a>

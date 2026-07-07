@@ -1,0 +1,17 @@
+export type WeatherCondition = 'EXCELLENT' | 'GOOD' | 'FAIR' | 'POOR';
+
+export interface WeatherData {
+  available: boolean;
+  reason?: string;
+  temperature?: number;
+  feelsLike?: number;
+  description?: string;
+  icon?: string;
+  iconUrl?: string;
+  humidity?: number;
+  windSpeedKmh?: number;
+  rainProbability?: number;
+  condition?: WeatherCondition;
+  conditionLabel?: string;
+  location?: string;
+}

@@ -1,0 +1,89 @@
+# --- Secret : identifiants OAuth2/Google + SMTP requis par userPI ---
+# ATTENTION : valeurs d'exemple pour le TP — remplace-les par de vrais identifiants
+# avant un déploiement réel (kubectl create secret ou coffre-fort dédié).
+apiVersion: v1
+kind: Secret
+metadata:
+  name: userpi-secrets
+  namespace: picloud
+type: Opaque
+stringData:
+  GOOGLE_CLIENT_ID: "changeme"
+  GOOGLE_CLIENT_SECRET: "changeme"
+  GOOGLE_CALLBACK_URL: "http://localhost:8081/login/oauth2/code/google"
+  SMTP_HOST: "smtp.gmail.com"
+  SMTP_PORT: "587"
+  SMTP_USER: "changeme@example.com"
+  SMTP_PASS: "changeme"
+  SMTP_FROM: "changeme@example.com"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: userpi
+  namespace: picloud
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: userpi
+  template:
+    metadata:
+      labels:
+        app: userpi
+    spec:
+      containers:
+        - name: userpi
+          image: <ton-dockerhub-user>/userpi:latest
+          ports:
+            - containerPort: 8081
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:mysql://mysql:3306/user_db"
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_USER
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_PASSWORD
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: "http://eureka-server:8761/eureka/"
+          envFrom:
+            - secretRef:
+                name: userpi-secrets
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8081
+            initialDelaySeconds: 25
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8081
+            initialDelaySeconds: 35
+            periodSeconds: 15
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: userpi
+  namespace: picloud
+spec:
+  selector:
+    app: userpi
+  ports:
+    - port: 8081
+      targetPort: 8081
+  type: ClusterIP

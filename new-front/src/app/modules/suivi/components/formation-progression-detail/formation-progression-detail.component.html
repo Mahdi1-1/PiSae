@@ -1,0 +1,72 @@
+<div class="progression-detail">
+
+  <!-- Progression par chapitre -->
+  <section class="section">
+    <h2 class="section__titre">Progression par chapitre</h2>
+
+    <div *ngIf="loadingChapitres" class="etat-message">
+      <ng-icon name="lucideLoader" class="animate-spin" size="24"></ng-icon>
+      <p>Chargement...</p>
+    </div>
+
+    <div *ngIf="erreurChapitres && !loadingChapitres" class="etat-message etat-message--erreur">
+      <p>{{ erreurChapitres }}</p>
+      <button type="button" class="bouton-reessayer" (click)="chargerChapitres()">Réessayer</button>
+    </div>
+
+    <ul *ngIf="!loadingChapitres && !erreurChapitres" class="chapitres-liste">
+      <li *ngFor="let chapitre of chapitres" class="chapitre-item">
+        <span class="chapitre-item__nom">{{ chapitre.ordre }}. {{ chapitre.nom }}</span>
+        <div class="chapitre-item__progress-row">
+          <hlm-progress [value]="chapitre.pourcentage" [max]="100" />
+          <span class="chapitre-item__pourcentage">{{ chapitre.pourcentage }}%</span>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- Historique de lecture -->
+  <section class="section">
+    <h2 class="section__titre">Historique de lecture</h2>
+
+    <div *ngIf="loadingLogs" class="etat-message">
+      <ng-icon name="lucideLoader" class="animate-spin" size="24"></ng-icon>
+      <p>Chargement...</p>
+    </div>
+
+    <div *ngIf="erreurLogs && !loadingLogs" class="etat-message etat-message--erreur">
+      <p>{{ erreurLogs }}</p>
+      <button type="button" class="bouton-reessayer" (click)="chargerLogs(0)">Réessayer</button>
+    </div>
+
+    <div *ngIf="!loadingLogs && !erreurLogs && logs.length === 0" class="etat-message">
+      <p>Aucune activité de lecture pour cette formation.</p>
+    </div>
+
+    <table *ngIf="!loadingLogs && !erreurLogs && logs.length > 0" class="logs-table">
+      <thead>
+        <tr>
+          <th>Ressource</th>
+          <th>Type</th>
+          <th>Temps passé</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let log of logs">
+          <td>Ressource #{{ log.ressourceId }}</td>
+          <td>{{ ressourceTypeLabel(log.ressourceType) }}</td>
+          <td>{{ formaterTemps(log.tempsPasseSecondes) }}</td>
+          <td>{{ log.dateConsultation | date: 'dd/MM/yyyy HH:mm' }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="!loadingLogs && !erreurLogs && totalPages > 1" class="pagination">
+      <button type="button" [disabled]="pageActuelle === 0" (click)="pagePrecedente()">← Précédent</button>
+      <span>Page {{ pageActuelle + 1 }} / {{ totalPages }}</span>
+      <button type="button" [disabled]="pageActuelle >= totalPages - 1" (click)="pageSuivante()">Suivant →</button>
+    </div>
+  </section>
+
+</div>

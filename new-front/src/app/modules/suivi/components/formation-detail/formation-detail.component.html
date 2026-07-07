@@ -1,0 +1,24 @@
+<div class="formation-detail">
+  <a class="retour-lien" routerLink="/app/formations">← Mes formations</a>
+
+  <h1 class="formation-detail__titre">{{ formationNom }}</h1>
+
+  <nav class="onglets">
+    <a
+      class="onglet"
+      routerLink="progression"
+      routerLinkActive="onglet--actif">
+      Ma progression
+    </a>
+    <a
+      class="onglet"
+      routerLink="avis"
+      routerLinkActive="onglet--actif">
+      Avis
+    </a>
+  </nav>
+
+  <div class="onglet-contenu">
+    <router-outlet></router-outlet>
+  </div>
+</div>

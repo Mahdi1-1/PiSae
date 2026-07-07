@@ -1,0 +1,248 @@
+"""
+╔═══════════════════════════════════════════════════════════╗
+║     🎙️ WHISPER + PYANNOTE TRANSCRIPTION SERVER v3.0      ║
+║     Support WEBM/WAV/MP3/OGG - Sans FFmpeg               ║
+╚═══════════════════════════════════════════════════════════╝
+"""
+
+import os
+import sys
+from pathlib import Path
+import torch
+import numpy as np
+from datetime import datetime
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+from faster_whisper import WhisperModel
+from faster_whisper.audio import decode_audio   # ← AJOUTÉ ICI
+from pyannote.audio import Pipeline
+import logging
+
+
+def load_env_file(env_path: str = ".env") -> None:
+    """Load KEY=VALUE pairs from a local .env file into process env."""
+    path = Path(env_path)
+    if not path.exists():
+        return
+
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip()
+        value = value.strip().strip('"').strip("'")
+        if key and key not in os.environ:
+            os.environ[key] = value
+
+
+load_env_file()
+
+# ==================== CONFIGURATION ====================
+HF_TOKEN = os.getenv("HF_TOKEN", "")
+UPLOAD_FOLDER = "temp_audio_uploads"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s | %(levelname)-8s | %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+logger = logging.getLogger(__name__)
+
+app = Flask(__name__)
+CORS(app)
+
+whisper_model = None
+pyannote_pipeline = None
+
+
+def load_whisper_model():
+    global whisper_model
+    if whisper_model is None:
+        logger.info("🔄 Chargement Whisper medium...")
+        whisper_model = WhisperModel("medium", device="cpu", compute_type="int8")
+        logger.info("✅ Whisper prêt")
+    return whisper_model
+
+
+def load_pyannote_pipeline():
+    global pyannote_pipeline
+    if pyannote_pipeline is None:
+        if not HF_TOKEN:
+            return None
+        try:
+            pyannote_pipeline = Pipeline.from_pretrained(
+                "pyannote/speaker-diarization-community-1",
+                token=HF_TOKEN
+            )
+            logger.info("✅ Pyannote prêt")
+        except Exception as e:
+            logger.error(f"❌ Pyannote: {e}")
+            pyannote_pipeline = None
+    return pyannote_pipeline
+
+
+@app.route('/health', methods=['GET'])
+def health_check():
+    return jsonify({
+        "status": "healthy",
+        "service": "Whisper-Pyannote Server v3.0",
+        "features": ["whisper", "pyannote", "webm-support", "no-ffmpeg"],
+        "python_version": sys.version.split()[0],
+        "timestamp": datetime.now().isoformat()
+    })
+
+
+@app.route('/api/transcribe', methods=['POST'])
+def transcribe_audio():
+    """Endpoint principal - Accepte WEBM, WAV, MP3, OGG sans FFmpeg"""
+
+    if 'audio' not in request.files:
+        return jsonify({"success": False, "error": "Aucun fichier audio"}), 400
+
+    audio_file = request.files['audio']
+    meeting_id = request.form.get('meetingId', f"unknown_{datetime.now().strftime('%H%M%S')}")
+    num_speakers = int(request.form.get('numSpeakers', 2))
+
+    if not audio_file.filename:
+        return jsonify({"success": False, "error": "Fichier vide"}), 400
+
+    start_time = datetime.now()
+    temp_path = None
+
+    try:
+        # ====== SAUVEGARDE FICHIER TEMPORAIRE ======
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        file_ext = audio_file.filename.lower().split('.')[-1]
+        original_filename = f"meeting_{meeting_id}_{timestamp}.{file_ext}"
+        temp_path = os.path.join(UPLOAD_FOLDER, original_filename)
+
+        audio_file.save(temp_path)
+        file_size_mb = os.path.getsize(temp_path) / (1024 * 1024)
+
+        logger.info(f"📥 Fichier reçu: {original_filename} ({file_size_mb:.2f} MB) - Format: {file_ext.upper()}")
+
+        if not os.path.exists(temp_path) or os.path.getsize(temp_path) == 0:
+            raise Exception("Fichier audio vide ou introuvable")
+
+        # ====== CHARGEMENT MODÈLES ======
+        whisper = load_whisper_model()
+        pyannote = load_pyannote_pipeline()
+
+        # ====== LECTURE AUDIO AVEC FASTER-WHISPER ======
+        # ✅ decode_audio lit WEBM, WAV, MP3, OGG sans FFmpeg externe
+        logger.info("🔊 Décodage audio avec faster-whisper...")
+        audio_np = decode_audio(temp_path)   # ← RETOURNE numpy float32 mono 16kHz
+        sample_rate = 16000                   # ← decode_audio retourne toujours 16kHz
+        waveform = torch.tensor(audio_np).unsqueeze(0)
+        duration_sec = len(audio_np) / sample_rate
+        logger.info(f"✅ Audio: shape={waveform.shape}, durée={duration_sec:.1f}s")
+
+        results = []
+
+        # ====== DIARIZATION PYANNOTE ======
+        if pyannote is not None:
+            logger.info(f"🔍 Diarization ({num_speakers} speakers)...")
+            diarization = pyannote(
+                {"waveform": waveform, "sample_rate": sample_rate},
+                num_speakers=num_speakers
+            )
+
+            raw_segs = []
+            for turn, speaker in diarization.speaker_diarization:
+                if turn.end - turn.start < 0.3:
+                    continue
+                raw_segs.append({
+                    "speaker": str(speaker),
+                    "start": float(turn.start),
+                    "end": float(turn.end)
+                })
+
+            # Fusionner segments consécutifs du même speaker
+            merged = []
+            for seg in raw_segs:
+                if (merged
+                        and merged[-1]["speaker"] == seg["speaker"]
+                        and seg["start"] - merged[-1]["end"] < 1.5):
+                    merged[-1]["end"] = seg["end"]
+                else:
+                    merged.append(dict(seg))
+
+            logger.info(f"✅ Diarization: {len(raw_segs)} → {len(merged)} segments fusionnés")
+        else:
+            # Pas de pyannote → tout en un seul segment
+            merged = [{"speaker": "SPEAKER_00", "start": 0.0, "end": duration_sec}]
+
+        # ====== TRANSCRIPTION WHISPER ======
+        logger.info("📝 Transcription Whisper...")
+
+        for seg in merged:
+            if seg["end"] - seg["start"] < 0.5:
+                continue
+
+            s = int(seg["start"] * sample_rate)
+            e = int(seg["end"] * sample_rate)
+            segment_audio = audio_np[s:e]
+
+            segments_gen, info = whisper.transcribe(
+                segment_audio,
+                beam_size=5,
+                language=None,
+                vad_filter=True,
+                condition_on_previous_text=True
+            )
+
+            text = " ".join(s.text for s in segments_gen).strip()
+            if not text:
+                continue
+
+            results.append({
+                "speaker": seg["speaker"].replace("SPEAKER_", "Intervenant "),
+                "language": info.language.upper(),
+                "text": text,
+                "start": round(seg["start"], 2),
+                "end": round(seg["end"], 2),
+                "meetingId": meeting_id
+            })
+
+        # ====== RÉPONSE ======
+        processing_time = (datetime.now() - start_time).total_seconds()
+
+        response = {
+            "success": True,
+            "meetingId": meeting_id,
+            "totalSegments": len(results),
+            "speakers": list(set(r["speaker"] for r in results)),
+            "segments": results,
+            "processingTimeSec": round(processing_time, 2),
+            "processedAt": datetime.now().isoformat(),
+            "inputFormat": file_ext.upper()
+        }
+
+        logger.info(f"✅ TERMINÉ en {processing_time:.1f}s — {len(results)} segments")
+        return jsonify(response)
+
+    except Exception as e:
+        logger.error(f"❌ ERREUR: {str(e)}", exc_info=True)
+        return jsonify({"success": False, "error": str(e)}), 500
+
+    finally:
+        # Supprimer fichier temporaire
+        if temp_path and os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+                logger.info(f"🗑️ Fichier supprimé: {temp_path}")
+            except Exception:
+                pass
+
+
+if __name__ == '__main__':
+    print("""
+    ╔══════════════════════════════════════════════════════════════╗
+    ║   🎙️ WHISPER + PYANNOTE v3.0 — SANS FFMPEG                 ║
+    ║   Port: 5000                                                 ║
+    ║   Formats: WEBM WAV MP3 OGG (via faster-whisper)            ║
+    ╚══════════════════════════════════════════════════════════════╝
+    """)
+    app.run(host='0.0.0.0', port=5000, debug=False)

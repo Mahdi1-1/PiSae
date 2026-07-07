@@ -1,0 +1,16 @@
+<div class="star-rating" [class.star-rating--readonly]="readonly" (mouseleave)="survol(null)">
+  <button
+    *ngFor="let etoile of etoiles"
+    type="button"
+    class="star-rating__etoile"
+    [disabled]="readonly"
+    [attr.aria-label]="etoile + ' étoile' + (etoile > 1 ? 's' : '')"
+    (click)="selectionner(etoile)"
+    (mouseenter)="survol(etoile)">
+    <ng-icon
+      name="lucideStar"
+      [class.star-rating__icone--remplie]="estRemplie(etoile)"
+      size="22">
+    </ng-icon>
+  </button>
+</div>

@@ -1,0 +1,295 @@
+<div class="landing-root">
+
+  <!-- ═══════════════════════════════════════════════════
+       1. HERO
+       ═══════════════════════════════════════════════════ -->
+  <section class="hero" @heroEntry>
+    <div class="hero-bg" aria-hidden="true">
+      <img
+        class="hero-img"
+        src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1800&q=80&fit=crop"
+        alt=""
+      />
+      <div class="hero-overlay"></div>
+      @for (p of particles; track p.id) {
+        <span
+          class="particle"
+          [style.width.px]="p.size"
+          [style.height.px]="p.size"
+          [style.left.%]="p.x"
+          [style.top.%]="p.startY"
+          [style.animation-duration.s]="p.dur"
+          [style.animation-delay.s]="p.delay"
+        ></span>
+      }
+    </div>
+
+    <div class="hero-content container">
+      <p class="eyebrow hero-animate">● THE COMMUNITY PLATFORM</p>
+      <h1 class="hero-title hero-animate">
+        Connecting People<br>
+        <em>to Communities</em>
+      </h1>
+      <p class="hero-subtitle hero-animate">
+        FoundersLab brings together users with local and global community groups,
+        discussions, and professional networking tools to build their future.
+      </p>
+      <div class="hero-actions hero-animate">
+        <a routerLink="/auth/signup" class="btn btn-primary">Join Community</a>
+        <button type="button" class="btn btn-ghost" (click)="showVideoModal.set(true)">
+          <span class="play-icon">▶</span>&nbsp;Watch Demo
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Video Modal -->
+  @if (showVideoModal()) {
+    <div class="modal-overlay" (click)="showVideoModal.set(false)" role="dialog" aria-modal="true" aria-label="Demo video">
+      <div class="modal-box" (click)="$event.stopPropagation()">
+        <button class="modal-close" (click)="showVideoModal.set(false)" aria-label="Close video">
+          <ng-icon name="lucideX" size="20" />
+        </button>
+        <div class="video-wrap">
+          <iframe
+            src="https://www.youtube.com/embed/qp0HIF3SfI4?autoplay=1"
+            title="FoundersLab — How It Works"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen>
+          </iframe>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ═══════════════════════════════════════════════════
+       2. MARQUEE BANNER
+       ═══════════════════════════════════════════════════ -->
+  <div class="marquee-strip" aria-hidden="true">
+    <div class="marquee-track">
+      <span class="mi">Networking</span><span class="ms">·</span>
+      <span class="mi">Startup Events</span><span class="ms">·</span>
+      <span class="mi">Pitch Competitions</span><span class="ms">·</span>
+      <span class="mi">Workshops</span><span class="ms">·</span>
+      <span class="mi">Investor Meetups</span><span class="ms">·</span>
+      <span class="mi">Mentorship</span><span class="ms">·</span>
+      <span class="mi">Accelerators</span><span class="ms">·</span>
+      <span class="mi">Bootcamps</span><span class="ms">·</span>
+      <!-- duplicate for seamless infinite loop -->
+      <span class="mi">Networking</span><span class="ms">·</span>
+      <span class="mi">Startup Events</span><span class="ms">·</span>
+      <span class="mi">Pitch Competitions</span><span class="ms">·</span>
+      <span class="mi">Workshops</span><span class="ms">·</span>
+      <span class="mi">Investor Meetups</span><span class="ms">·</span>
+      <span class="mi">Mentorship</span><span class="ms">·</span>
+      <span class="mi">Accelerators</span><span class="ms">·</span>
+      <span class="mi">Bootcamps</span><span class="ms">·</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       3. FEATURES GRID
+       ═══════════════════════════════════════════════════ -->
+  <section id="services" class="features-section" [@featureCards]="featuresState()">
+    <div class="container">
+      <p class="section-eyebrow">● OUR SERVICES</p>
+      <h2 class="section-title">Everything a <em>Founder Needs</em></h2>
+      <div class="features-grid">
+        @for (f of features; track f.title) {
+          <article class="feature-card rc">
+            <div class="feature-icon-wrap">
+              <ng-icon [name]="f.icon" size="22" />
+            </div>
+            <h3>{{ f.title }}</h3>
+            <p>{{ f.desc }}</p>
+          </article>
+        }
+        <!-- 4th card: image CTA (Stratwell style) -->
+        <article class="feature-card feature-card--img rc">
+          <img
+            src="https://images.unsplash.com/photo-1556761175-b413da4baf72?w=640&h=480&fit=crop&q=80"
+            alt="Join the founder community"
+          />
+          <div class="feature-card__cta">
+            <a routerLink="/auth/signup" class="feature-card__cta-link">
+              <em>Join the Community →</em>
+            </a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+
+
+  <!-- ═══════════════════════════════════════════════════
+       5. GALLERY STRIP (CSS infinite scroll)
+       ═══════════════════════════════════════════════════ -->
+  <div class="gallery-strip" aria-hidden="true">
+    <div class="gallery-row gallery-row--fwd">
+      @for (img of galleryRow1; track img) {
+        <img [src]="img" alt="" loading="lazy" />
+      }
+      @for (img of galleryRow1; track img + 'b') {
+        <img [src]="img" alt="" loading="lazy" />
+      }
+    </div>
+    <div class="gallery-row gallery-row--rev">
+      @for (img of galleryRow2; track img) {
+        <img [src]="img" alt="" loading="lazy" />
+      }
+      @for (img of galleryRow2; track img + 'b') {
+        <img [src]="img" alt="" loading="lazy" />
+      }
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       6. STATS COUNTER
+       ═══════════════════════════════════════════════════ -->
+  <section class="stats-section" [@reveal]="statsState()">
+    <div class="container">
+      <p class="section-eyebrow center light">● BY THE NUMBERS</p>
+      <div class="stats-grid">
+        @for (s of stats; track s.label) {
+          <article class="stat-card">
+            <p class="stat-value"><span [attr.data-count]="s.value">0</span>{{ s.suffix }}</p>
+            <p class="stat-label">{{ s.label }}</p>
+          </article>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════
+       7. TESTIMONIALS CAROUSEL
+       ═══════════════════════════════════════════════════ -->
+  <section class="testimonials-section" [@testimonialCards]="testimonialsState()">
+    <div class="container">
+      <p class="section-eyebrow">● COMMUNITY VOICES</p>
+      <h2 class="section-title">What Our <em>Community Says</em></h2>
+    </div>
+    <div class="testimonials-track">
+      @for (t of testimonials; track t.name) {
+        <article class="testimonial-card tc" [style.background-image]="'url(' + t.img + ')'">
+          <div class="testimonial-overlay">
+            <div class="testimonial-play">
+              <ng-icon name="lucidePlay" size="16" />
+            </div>
+            <div class="testimonial-body">
+              <p class="testimonial-quote">"{{ t.text }}"</p>
+              <p class="testimonial-name">{{ t.name }}</p>
+              <p class="testimonial-role">{{ t.role }}</p>
+            </div>
+          </div>
+        </article>
+      }
+      @for (t of testimonials; track t.name + 'd') {
+        <article class="testimonial-card" [style.background-image]="'url(' + t.img + ')'">
+          <div class="testimonial-overlay">
+            <div class="testimonial-play">
+              <ng-icon name="lucidePlay" size="16" />
+            </div>
+            <div class="testimonial-body">
+              <p class="testimonial-quote">"{{ t.text }}"</p>
+              <p class="testimonial-name">{{ t.name }}</p>
+              <p class="testimonial-role">{{ t.role }}</p>
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════
+       8. HOW IT WORKS
+       ═══════════════════════════════════════════════════ -->
+  <section id="about" class="how-section" [@revealLeft]="aboutLeftState()">
+    <div class="container how-inner">
+      <div class="how-media">
+        <video
+          autoplay muted loop
+          poster="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80&fit=crop"
+        >
+          <source
+            src="https://assets.mixkit.co/videos/preview/mixkit-people-in-a-business-meeting-viewed-from-above-547-large.mp4"
+            type="video/mp4"
+          />
+        </video>
+      </div>
+      <div class="how-steps">
+        <p class="section-eyebrow">● HOW IT WORKS</p>
+        <h2 class="section-title">Your Path from <em>Idea to Growth</em></h2>
+        @for (step of howSteps; track step.num) {
+          <div class="how-step">
+            <span class="how-step__num">{{ step.num }}</span>
+            <div class="how-step__body">
+              <h3>{{ step.title }}</h3>
+              <p>{{ step.desc }}</p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════
+       9. PARTNERS / TRUSTED BY
+       ═══════════════════════════════════════════════════ -->
+  <section class="partners-section">
+    <div class="container">
+      <p class="section-eyebrow center">● TRUSTED BY LEADING ECOSYSTEMS</p>
+    </div>
+    <div class="partners-marquee" aria-hidden="true">
+      <div class="partners-track">
+        @for (b of trustedBrands; track b) {
+          <span class="partner-chip">{{ b }}</span>
+        }
+        @for (b of trustedBrands; track b + 'd') {
+          <span class="partner-chip">{{ b }}</span>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════
+       10. CTA BANNER
+       ═══════════════════════════════════════════════════ -->
+  <section class="cta-banner" [@reveal]="ctaState()">
+    <div class="cta-banner__bg" aria-hidden="true">
+      <img
+        src="https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?w=1800&q=80&fit=crop"
+        alt=""
+      />
+      <div class="cta-banner__overlay"></div>
+    </div>
+    <div class="cta-banner__content container">
+      <h2 class="cta-title">Ready to Grow <em>Your Network?</em></h2>
+      <p class="cta-subtitle">Join 1,200+ founders already building their future on FoundersLab.</p>
+      <a routerLink="/auth/signup" class="btn btn-pill-white">Get Started Today</a>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════
+       11. CONTACT
+       ═══════════════════════════════════════════════════ -->
+  <section id="contact" class="contact-section" [@reveal]="contactState()">
+    <div class="container">
+      <p class="section-eyebrow">● GET IN TOUCH</p>
+      <h2 class="section-title">Contact <em>Us</em></h2>
+      <div class="contact-grid">
+        @for (c of contactInfo; track c.label) {
+          <article class="contact-card">
+            <div class="contact-icon-wrap">
+              <ng-icon [name]="c.icon" size="20" />
+            </div>
+            <p class="contact-label">{{ c.label }}</p>
+            <p class="contact-value">{{ c.value }}</p>
+          </article>
+        }
+      </div>
+    </div>
+  </section>
+
+</div>

@@ -1,0 +1,113 @@
+// Pipeline CI dédié au microservice api-gateway :
+// build Maven + tests JUnit + JaCoCo + analyse SonarQube + image Docker
+pipeline {
+    agent any
+
+    tools {
+        maven 'maven-3.9' // configuré dans Jenkins > Global Tool Configuration
+        jdk 'jdk-21'
+    }
+
+    environment {
+        MODULE                = 'api-gateway'
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials') // configuré dans Jenkins > Credentials
+        DOCKERHUB_USER        = 'ton-dockerhub-user'
+        SONAR_TOKEN           = credentials('sonar-token')
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build Maven') {
+            steps {
+                dir(env.MODULE) {
+                    sh 'mvn clean compile -B'
+                }
+            }
+        }
+
+        stage('Tests unitaires (JUnit)') {
+            steps {
+                dir(env.MODULE) {
+                    sh 'mvn test -B'
+                }
+            }
+            post {
+                always {
+                    junit "${env.MODULE}/target/surefire-reports/*.xml"
+                    jacoco execPattern: "${env.MODULE}/target/jacoco.exec"
+                }
+            }
+        }
+
+        stage('Analyse SonarQube') {
+            steps {
+                dir(env.MODULE) {
+                    withSonarQubeEnv('sonarqube-local') { // nom configuré dans Jenkins > Configure System
+                        sh """
+                            mvn sonar:sonar \
+                              -Dsonar.projectKey=picloud-${env.MODULE} \
+                              -Dsonar.host.url=http://sonarqube:9000 \
+                              -Dsonar.login=${SONAR_TOKEN}
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
+        stage('Package') {
+            steps {
+                dir(env.MODULE) {
+                    sh 'mvn package -DskipTests -B'
+                }
+            }
+        }
+
+        stage('Docker build') {
+            steps {
+                // Le Dockerfile vit dans devops/backend/api-gateway/ ; le contexte de build
+                // reste le module lui-même pour que "COPY pom.xml ." / "COPY src ./src" fonctionnent.
+                sh """
+                    docker build \
+                      -f devops/backend/${env.MODULE}/Dockerfile \
+                      -t ${DOCKERHUB_USER}/${env.MODULE}:${BUILD_NUMBER} \
+                      -t ${DOCKERHUB_USER}/${env.MODULE}:latest \
+                      ${env.MODULE}
+                """
+            }
+        }
+
+        stage('Docker push') {
+            steps {
+                sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
+                sh "docker push ${DOCKERHUB_USER}/${env.MODULE}:${BUILD_NUMBER}"
+                sh "docker push ${DOCKERHUB_USER}/${env.MODULE}:latest"
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "CI ${env.MODULE} terminé avec succès — build #${BUILD_NUMBER}"
+        }
+        failure {
+            echo "CI ${env.MODULE} a échoué — voir les logs ci-dessus"
+        }
+        always {
+            sh 'docker logout || true'
+        }
+    }
+}

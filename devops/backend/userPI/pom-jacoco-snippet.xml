@@ -1,0 +1,25 @@
+<!--
+  À copier dans le <build><plugins> de userPI/pom.xml (et des autres modules
+  si tu veux mesurer leur couverture aussi). JaCoCo génère le rapport que
+  Sonar va lire pour calculer le taux de couverture de tests.
+-->
+<plugin>
+    <groupId>org.jacoco</groupId>
+    <artifactId>jacoco-maven-plugin</artifactId>
+    <version>0.8.12</version>
+    <executions>
+        <execution>
+            <id>prepare-agent</id>
+            <goals>
+                <goal>prepare-agent</goal>
+            </goals>
+        </execution>
+        <execution>
+            <id>report</id>
+            <phase>test</phase>
+            <goals>
+                <goal>report</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>

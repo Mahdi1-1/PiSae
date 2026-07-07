@@ -1,0 +1,366 @@
+/* ── Page shell ── */
+.auth-layout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  font-family: var(--font-sans);
+}
+
+/* ═══════════════════════════════════════════════════
+   LEFT PANEL — WebGL canvas shader + branding overlay
+═══════════════════════════════════════════════════ */
+.auth-layout__left {
+  position: relative;
+  width: 52%;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: #081224; /* shown during WebGL init & as base */
+}
+
+/* Branding sits above the canvas */
+.auth-layout__left-content {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* ── Logo (top-left) ── */
+.fl-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 36px 40px;
+}
+
+.fl-logo__mark {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  background: rgba(55, 138, 221, 0.18);
+  border: 1px solid rgba(55, 138, 221, 0.38);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.fl-logo__name {
+  font-size: 17px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+}
+
+/* ── Brand block (bottom-left) ── */
+.fl-brand {
+  padding: 40px 44px;
+}
+
+@keyframes fl-fade-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.fl-brand__eyebrow {
+  margin: 0 0 14px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #378ADD;
+  opacity: 0;
+  animation: fl-fade-up 0.55s ease 0.15s forwards;
+}
+
+.fl-brand__heading {
+  margin: 0 0 14px;
+  line-height: 1.15;
+  opacity: 0;
+  animation: fl-fade-up 0.55s ease 0.25s forwards;
+}
+
+.fl-brand__line1 {
+  display: block;
+  color: #ffffff;
+  font-size: 38px;
+  font-weight: 800;
+  font-family: var(--font-sans);
+}
+
+.fl-brand__line2 {
+  display: block;
+  color: #378ADD;
+  font-size: 38px;
+  font-style: italic;
+  font-family: 'Playfair Display', var(--font-serif), serif;
+  font-weight: 400;
+}
+
+.fl-brand__desc {
+  margin: 0 0 20px;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 14px;
+  line-height: 1.75;
+  max-width: 340px;
+  opacity: 0;
+  animation: fl-fade-up 0.55s ease 0.35s forwards;
+}
+
+.fl-brand__pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  opacity: 0;
+  animation: fl-fade-up 0.55s ease 0.45s forwards;
+}
+
+.fl-pill {
+  background: rgba(55, 138, 221, 0.12);
+  border: 1px solid rgba(55, 138, 221, 0.28);
+  border-radius: 100px;
+  padding: 7px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.82);
+  white-space: nowrap;
+}
+
+/* ── Floating particle orbs ───────────────────────────────────────
+   Each orb drifts upward from its `bottom` anchor, fades in, then out.
+   All tuneable properties are CSS custom properties set inline in HTML.
+─────────────────────────────────────────────────────────────────── */
+.fl-particles {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.fl-particle {
+  position: absolute;
+  border-radius: 50%;
+  width: var(--size, 5px);
+  height: var(--size, 5px);
+  left: var(--left, 50%);
+  bottom: var(--bot, 10%);
+  background: radial-gradient(
+    circle at 35% 35%,
+    rgba(91, 167, 232, 0.92) 0%,
+    rgba(55, 138, 221, 0.55) 50%,
+    transparent 100%
+  );
+  box-shadow: 0 0 calc(var(--size, 5px) * 2.5) rgba(91, 167, 232, 0.55),
+              0 0 calc(var(--size, 5px) * 5)   rgba(55, 138, 221, 0.20);
+  opacity: 0;
+  animation: fl-orb-float var(--dur, 9s) var(--delay, 0s) ease-in-out infinite;
+}
+
+@keyframes fl-orb-float {
+  0%   { transform: translateY(0)      translateX(0);               opacity: 0; }
+  12%  { opacity: var(--opacity, 0.6); }
+  50%  { transform: translateY(-120px) translateX(calc(var(--drift, 15px) * 0.5)); }
+  88%  { opacity: 0.12; }
+  100% { transform: translateY(-250px) translateX(var(--drift, 15px)); opacity: 0; }
+}
+
+/* ── Headline aurora glow (pulsing radial behind the h2) ──────────
+   Uses a ::before pseudo so it lives behind the text without
+   affecting the parent's fl-fade-up opacity animation.
+─────────────────────────────────────────────────────────────────── */
+.fl-brand__heading {
+  position: relative;
+}
+
+.fl-brand__heading::before {
+  content: '';
+  position: absolute;
+  inset: -40px -70px;
+  background: radial-gradient(
+    ellipse at 44% 58%,
+    rgba(55, 138, 221, 0.24) 0%,
+    rgba(24, 95, 165, 0.14) 40%,
+    transparent 72%
+  );
+  filter: blur(22px);
+  z-index: -1;
+  pointer-events: none;
+  animation: fl-heading-glow 5s ease-in-out infinite;
+}
+
+@keyframes fl-heading-glow {
+  0%, 100% { opacity: 0.65; transform: scale(1); }
+  50%       { opacity: 1;    transform: scale(1.07); }
+}
+
+/* ── Eyebrow accent streak ────────────────────────────────────────
+   A faint horizontal shimmer behind the "The Founder Platform" label.
+─────────────────────────────────────────────────────────────────── */
+.fl-brand__eyebrow {
+  position: relative;
+}
+
+.fl-brand__eyebrow::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  margin-top: 14px;
+  background: linear-gradient(
+    90deg,
+    rgba(55, 138, 221, 0.55) 0%,
+    rgba(91, 167, 232, 0.25) 60%,
+    transparent 100%
+  );
+  transform: scaleX(0.8);
+  transform-origin: left;
+  animation: fl-streak-in 0.8s ease 0.6s forwards;
+  opacity: 0;
+}
+
+@keyframes fl-streak-in {
+  from { opacity: 0; transform: scaleX(0); }
+  to   { opacity: 1; transform: scaleX(0.8); }
+}
+
+/* CSS fallback when WebGL is unavailable */
+@keyframes auth-gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50%       { background-position: 100% 50%; }
+}
+.auth-layout__left .auth-bg-fallback {
+  background: linear-gradient(135deg, #081224, #1a3a8f, #185FA5, #081224) !important;
+  background-size: 400% 400% !important;
+  animation: auth-gradient-shift 10s ease infinite;
+}
+
+/* ═══════════════════════════════════════════
+   RIGHT PANEL — clean white form
+═══════════════════════════════════════════ */
+.auth-layout__right {
+  flex: 1;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+}
+
+.auth-layout__form-wrapper {
+  width: 100%;
+  max-width: 400px;
+  padding: 0 48px;
+}
+
+/* ── Tab switcher ── */
+.auth-tabs {
+  display: inline-flex;
+  background: #f0f4fa;
+  border-radius: 14px;
+  padding: 5px;
+  margin-bottom: 28px;
+  gap: 0;
+}
+
+.auth-tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 28px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #9aaac4;
+  text-decoration: none;
+  transition: background 220ms ease, color 220ms ease, box-shadow 220ms ease;
+  white-space: nowrap;
+  border: none;
+  cursor: pointer;
+  background: transparent;
+}
+
+.auth-tab--active {
+  background: #185FA5;
+  color: #ffffff;
+  box-shadow: 0 2px 10px rgba(24, 95, 165, 0.28);
+}
+
+.auth-tab:focus-visible {
+  outline: 2px solid #185FA5;
+  outline-offset: 2px;
+}
+
+/* ── Heading block ── */
+.auth-heading {
+  margin: 0 0 6px;
+  font-size: 28px;
+  font-weight: 700;
+  color: #0a1628;
+  line-height: 1.15;
+}
+
+.auth-subheading {
+  margin: 0 0 28px;
+  font-size: 14px;
+  color: #9aaac4;
+}
+
+/* ── Bottom note ── */
+.auth-bottom-note {
+  text-align: center;
+  font-size: 13px;
+  color: #4a5568;
+  margin: 20px 0 0;
+}
+
+.auth-note-link {
+  color: #185FA5;
+  text-decoration: none;
+  font-weight: 500;
+  margin-left: 4px;
+  transition: color 200ms ease;
+}
+
+.auth-note-link:hover {
+  color: #1a3a8f;
+  text-decoration: underline;
+}
+
+/* ═════════════════
+   RESPONSIVE
+═════════════════ */
+@media (max-width: 900px) {
+  .auth-layout__left {
+    width: 44%;
+  }
+  .fl-brand__line1,
+  .fl-brand__line2 {
+    font-size: 30px;
+  }
+}
+
+@media (max-width: 767px) {
+  .auth-layout__left {
+    display: none;
+  }
+  .auth-layout__right {
+    align-items: flex-start;
+    padding-top: 40px;
+  }
+  .auth-layout__form-wrapper {
+    max-width: 100%;
+    padding: 0 24px;
+  }
+}
+
+@media (max-width: 420px) {
+  .auth-layout__form-wrapper {
+    padding: 0 20px;
+  }
+}
