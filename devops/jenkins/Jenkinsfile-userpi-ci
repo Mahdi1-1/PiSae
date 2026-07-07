@@ -10,9 +10,6 @@ pipeline {
 
     environment {
         MODULE                = 'userPI'      // nom réel du dossier/module (respecte la casse du repo)
-        IMAGE_NAME            = 'userpi'      // les noms d'image Docker doivent être en minuscules
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials') // configuré dans Jenkins > Credentials
-        DOCKERHUB_USER        = 'ton-dockerhub-user'
         SONAR_TOKEN           = credentials('sonar-token')
     }
 
@@ -76,28 +73,6 @@ pipeline {
                 }
             }
         }
-
-        stage('Docker build') {
-            steps {
-                // Le Dockerfile vit dans devops/backend/userPI/ ; le contexte de build
-                // reste le module lui-même pour que "COPY pom.xml ." / "COPY src ./src" fonctionnent.
-                sh """
-                    docker build \
-                      -f devops/backend/${env.MODULE}/Dockerfile \
-                      -t ${DOCKERHUB_USER}/${env.IMAGE_NAME}:${BUILD_NUMBER} \
-                      -t ${DOCKERHUB_USER}/${env.IMAGE_NAME}:latest \
-                      ${env.MODULE}
-                """
-            }
-        }
-
-        stage('Docker push') {
-            steps {
-                sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
-                sh "docker push ${DOCKERHUB_USER}/${env.IMAGE_NAME}:${BUILD_NUMBER}"
-                sh "docker push ${DOCKERHUB_USER}/${env.IMAGE_NAME}:latest"
-            }
-        }
     }
 
     post {
@@ -106,9 +81,6 @@ pipeline {
         }
         failure {
             echo "CI ${env.MODULE} a échoué — voir les logs ci-dessus"
-        }
-        always {
-            sh 'docker logout || true'
         }
     }
 }
