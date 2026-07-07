@@ -1,16 +1,12 @@
 // Pipeline CI Frontend (Angular "FoundersLab", new-front/)
-// npm install + lint + tests unitaires + SonarQube + Docker build & push
-//
-// ✅ VRAIMENT FIXÉ : cleanWs() est dans le post du dernier stage (contexte node disponible)
-// Les posts globaux ne font que des echo (pas besoin de contexte)
+// npm install + lint + tests unitaires (Vitest via @angular/build:unit-test) + SonarQube + Build production
+// Pas de Docker dans ce pipeline (build/push géré ailleurs, ex: CD)
 
 pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
-        DOCKERHUB_USER        = 'ton-dockerhub-user'
-        SONAR_TOKEN           = credentials('sonar-token')
+        SONAR_TOKEN = credentials('sonar-token')
     }
 
     stages {
@@ -94,28 +90,6 @@ pipeline {
                     sh 'npm run build -- --configuration production'
                 }
             }
-        }
-
-        stage('Docker build') {
-            steps {
-                sh """
-                    docker build \
-                      -f devops/frontend/Dockerfile \
-                      -t ${DOCKERHUB_USER}/frontend:${BUILD_NUMBER} \
-                      -t ${DOCKERHUB_USER}/frontend:latest \
-                      .
-                """
-            }
-        }
-
-        stage('Docker push') {
-            steps {
-                sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
-                sh "docker push ${DOCKERHUB_USER}/frontend:${BUILD_NUMBER}"
-                sh "docker push ${DOCKERHUB_USER}/frontend:latest"
-                sh 'docker logout || true'
-            }
-            // ✅ cleanWs() ICI — dans le contexte du node du stage
             post {
                 always {
                     cleanWs()
@@ -125,7 +99,6 @@ pipeline {
 
     }
 
-    // ✅ Post global ne fait que des echo (pas besoin de contexte node)
     post {
         success {
             echo "✅ CI frontend terminé avec succès — build #${BUILD_NUMBER}"
