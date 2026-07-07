@@ -29,9 +29,12 @@ public class ApprenantResumeServiceImpl implements ApprenantResumeService {
                 .average()
                 .orElse(0.0);
 
-        // "Formation terminée" = au moins une ligne de progression TERMINE pour cette formation
-        // (niveau formation si suivi comme tel, ou niveau chapitre selon comment l'appelant l'utilise).
+        // "Formation terminée" = la ligne NIVEAU FORMATION (chapitreId == null) est TERMINE.
+        // Ne pas compter les lignes niveau chapitre ici : un apprenant qui a fini les 3
+        // premiers chapitres d'une formation à 5 chapitres (donc encore EN_COURS au global)
+        // ne doit pas faire gonfler ce compteur juste parce que CES chapitres-là sont à 100%.
         long formationsTerminees = progressions.stream()
+                .filter(p -> p.getChapitreId() == null)
                 .filter(p -> p.getStatut() == StatutProgression.TERMINE)
                 .map(Progression::getFormationId)
                 .distinct()

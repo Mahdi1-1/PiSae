@@ -1,0 +1,85 @@
+/* .panel / .panel__head / .panel__title / .panel__link sont déjà définis dans
+   home.component.ts (styles inline) — ce fichier ne couvre que le contenu propre au widget. */
+
+.resume-widget__etat {
+  color: var(--muted-foreground, #6B7280);
+  font-size: 13px;
+  text-align: center;
+  padding: 16px 0;
+}
+
+.resume-widget__etat--erreur {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--badge-red-text, #991B1B);
+}
+
+.resume-widget__reessayer {
+  padding: 4px 14px;
+  border-radius: var(--radius, 0.625rem);
+  background: var(--primary, #1C4FC3);
+  color: white;
+  border: none;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.resume-widget__contenu {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.resume-widget__progress-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.resume-widget__progress-row hlm-progress {
+  flex: 1;
+}
+
+.resume-widget__pourcentage {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--primary, #1C4FC3);
+  min-width: 42px;
+  text-align: right;
+}
+
+.resume-widget__progress-label {
+  font-size: 12px;
+  color: var(--muted-foreground, #6B7280);
+  margin: 0 0 12px;
+}
+
+.resume-widget__stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border, #E5E7EB);
+}
+
+.resume-widget__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.resume-widget__stat-valeur {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--foreground, #1F2937);
+}
+
+.resume-widget__stat-label {
+  font-size: 11px;
+  color: var(--muted-foreground, #6B7280);
+  text-align: center;
+}

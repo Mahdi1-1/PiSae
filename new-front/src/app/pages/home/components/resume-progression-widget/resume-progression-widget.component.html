@@ -1,0 +1,38 @@
+<section class="panel resume-widget">
+  <div class="panel__head">
+    <h3 class="panel__title">Résumé de progression</h3>
+    <a routerLink="/app/formations" class="panel__link">Mes formations</a>
+  </div>
+
+  @if (loading()) {
+    <p class="resume-widget__etat">Chargement...</p>
+  } @else if (error()) {
+    <div class="resume-widget__etat resume-widget__etat--erreur">
+      <p>{{ error() }}</p>
+      <button type="button" class="resume-widget__reessayer" (click)="charger()">Réessayer</button>
+    </div>
+  } @else if (resume()) {
+    <div class="resume-widget__contenu">
+      <div class="resume-widget__progress-row">
+        <hlm-progress [value]="resume()!.moyennePourcentage" [max]="100" />
+        <span class="resume-widget__pourcentage">{{ resume()!.moyennePourcentage | number: '1.0-0' }}%</span>
+      </div>
+      <p class="resume-widget__progress-label">Progression moyenne, toutes formations</p>
+
+      <div class="resume-widget__stats">
+        <div class="resume-widget__stat">
+          <span class="resume-widget__stat-valeur">{{ resume()!.nombreFormationsTerminees }}</span>
+          <span class="resume-widget__stat-label">Terminées</span>
+        </div>
+        <div class="resume-widget__stat">
+          <span class="resume-widget__stat-valeur">{{ nombreEnCours() }}</span>
+          <span class="resume-widget__stat-label">En cours</span>
+        </div>
+        <div class="resume-widget__stat">
+          <span class="resume-widget__stat-valeur">{{ tempsFormate() }}</span>
+          <span class="resume-widget__stat-label">Temps total</span>
+        </div>
+      </div>
+    </div>
+  }
+</section>
