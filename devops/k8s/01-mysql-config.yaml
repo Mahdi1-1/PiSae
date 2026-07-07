@@ -6,7 +6,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: mysql-secret
-  namespace: picloud
+  namespace: pisae
 type: Opaque
 stringData:
   MYSQL_ROOT_PASSWORD: "rootpassword"
@@ -21,7 +21,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: mysql-config
-  namespace: picloud
+  namespace: pisae
 data:
   MYSQL_HOST: "mysql"
   MYSQL_PORT: "3306"
@@ -31,7 +31,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mysql
-  namespace: picloud
+  namespace: pisae
 spec:
   replicas: 1
   selector:
@@ -62,7 +62,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: mysql-pvc
-  namespace: picloud
+  namespace: pisae
 spec:
   accessModes:
     - ReadWriteOnce
@@ -74,7 +74,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: mysql
-  namespace: picloud
+  namespace: pisae
 spec:
   selector:
     app: mysql

@@ -1,6 +1,6 @@
-# DevOps — PIcloud (eureka-server + api-gateway + userPI + new-front)
+# DevOps — pisae (eureka-server + api-gateway + userPI + new-front)
 
-Ce dossier a été adapté au projet réel (`PIcloud`, voir `PROJECT_DOCUMENTATION.md` à la racine) :
+Ce dossier a été adapté au projet réel (`pisae`, voir `PROJECT_DOCUMENTATION.md` à la racine) :
 noms de service, ports, dépendances et manifests correspondent au code effectivement présent
 dans le repo, pas à un gabarit générique. Les Dockerfiles restent dans `devops/` (pas dupliqués
 dans chaque module) : les pipelines les référencent via `docker build -f devops/... <contexte>`.
@@ -21,7 +21,7 @@ devops/
 │   ├── nginx.conf
 │   └── sonar-project.properties
 ├── k8s/
-│   ├── 00-namespace.yaml            (namespace "picloud")
+│   ├── 00-namespace.yaml            (namespace "pisae")
 │   ├── 01-mysql-config.yaml         (MySQL + Secret userpi-secrets pour OAuth2/SMTP)
 │   ├── 02-eureka-server.yaml
 │   ├── 03-userpi.yaml
@@ -33,7 +33,7 @@ devops/
 │   └── docker-compose.yml
 ├── monitoring/
 │   ├── prometheus.yml               → version locale/docker-compose (référence)
-│   └── grafana/provisioning/        → datasources + dashboard "PIcloud - Vue d'ensemble backend"
+│   └── grafana/provisioning/        → datasources + dashboard "pisae - Vue d'ensemble backend"
 └── jenkins/
     ├── Jenkinsfile-eureka-server-ci / -cd
     ├── Jenkinsfile-api-gateway-ci / -cd
@@ -127,14 +127,14 @@ kubectl apply -f devops/k8s/
 
 ### 8. Accéder à Grafana
 ```bash
-kubectl port-forward svc/grafana 3000:3000 -n picloud
+kubectl port-forward svc/grafana 3000:3000 -n pisae
 ```
 Ouvre http://localhost:3000 — login `admin` / mot de passe défini dans `k8s/07-grafana.yaml` (Secret `grafana-secret`, `admin123` par défaut, à changer).
-Le datasource Prometheus et le dashboard "PIcloud - Vue d'ensemble backend" sont provisionnés automatiquement au démarrage.
+Le datasource Prometheus et le dashboard "pisae - Vue d'ensemble backend" sont provisionnés automatiquement au démarrage.
 
 ### 9. Accéder à Prometheus directement (optionnel, pour debug)
 ```bash
-kubectl port-forward svc/prometheus 9090:9090 -n picloud
+kubectl port-forward svc/prometheus 9090:9090 -n pisae
 ```
 Ouvre http://localhost:9090/targets pour vérifier que les 3 services backend apparaissent en `UP`.
 

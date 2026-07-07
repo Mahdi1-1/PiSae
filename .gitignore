@@ -22,7 +22,7 @@ Thumbs.db
 .env.*
 !.env.example
 # Local generated apps
-PIcloud/
+pisae/
 
 # Python
 **/.venv/

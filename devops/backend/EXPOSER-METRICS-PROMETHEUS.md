@@ -30,7 +30,7 @@ exactement l'URL que Prometheus va scraper (voir devops/k8s/06-prometheus.yaml).
 ## 3. Vérification rapide (après déploiement)
 
 ```bash
-kubectl port-forward svc/userpi 8081:8081 -n picloud
+kubectl port-forward svc/userpi 8081:8081 -n pisae
 curl http://localhost:8081/actuator/prometheus | head -30
 ```
 

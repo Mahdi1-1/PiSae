@@ -1536,12 +1536,12 @@
 }
 
 /* ══════════════════════════════════════════════════════════════
-   PIcloud Community Module → FoundersLab Compatibility Bridge
+   pisae Community Module → FoundersLab Compatibility Bridge
    Maps old --co-* variables + restyled Material components
    ══════════════════════════════════════════════════════════════ */
 
 :root {
-  /* PIcloud community variables → FoundersLab equivalents */
+  /* pisae community variables → FoundersLab equivalents */
   --co-background: var(--background);
   --co-primary: #1C4FC3;
   --co-primary-dark: #1D1384;
@@ -1554,7 +1554,7 @@
   --co-success: #10B981;
   --co-warning: #F59E0B;
 
-  /* PIcloud transition tokens */
+  /* pisae transition tokens */
   --transition-fast: 0.15s cubic-bezier(0.25,0.46,0.45,0.94);
   --transition-medium: 0.25s cubic-bezier(0.25,0.46,0.45,0.94);
   --transition-slow: 0.4s cubic-bezier(0.25,0.46,0.45,0.94);

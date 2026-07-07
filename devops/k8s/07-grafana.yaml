@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: grafana-datasources
-  namespace: picloud
+  namespace: pisae
 data:
   prometheus.yml: |
     apiVersion: 1
@@ -18,12 +18,12 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: grafana-dashboard-providers
-  namespace: picloud
+  namespace: pisae
 data:
   dashboards.yml: |
     apiVersion: 1
     providers:
-      - name: 'PIcloud Dashboards'
+      - name: 'pisae Dashboards'
         orgId: 1
         folder: ''
         type: file
@@ -36,12 +36,12 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: grafana-dashboard-json
-  namespace: picloud
+  namespace: pisae
 data:
-  picloud-overview.json: |
+  pisae-overview.json: |
     {
-      "title": "PIcloud - Vue d'ensemble backend",
-      "uid": "picloud-overview",
+      "title": "pisae - Vue d'ensemble backend",
+      "uid": "pisae-overview",
       "timezone": "browser",
       "schemaVersion": 39,
       "version": 1,
@@ -99,7 +99,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: grafana
-  namespace: picloud
+  namespace: pisae
 spec:
   replicas: 1
   selector:
@@ -127,8 +127,8 @@ spec:
             - name: dashboard-providers
               mountPath: /etc/grafana/provisioning/dashboards
             - name: dashboard-json
-              mountPath: /etc/grafana/provisioning/dashboards/picloud-overview.json
-              subPath: picloud-overview.json
+              mountPath: /etc/grafana/provisioning/dashboards/pisae-overview.json
+              subPath: pisae-overview.json
             - name: storage
               mountPath: /var/lib/grafana
           resources:
@@ -155,7 +155,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: grafana-secret
-  namespace: picloud
+  namespace: pisae
 type: Opaque
 stringData:
   admin-password: "admin123"   # à changer avant toute vraie utilisation
@@ -164,7 +164,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: grafana
-  namespace: picloud
+  namespace: pisae
 spec:
   selector:
     app: grafana

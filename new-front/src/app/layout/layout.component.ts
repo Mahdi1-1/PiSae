@@ -754,8 +754,8 @@ export class LayoutComponent {
   protected readonly currentUser = signal<User | null>(null);
 
   protected readonly profileFirstName = computed(() => this.currentUser()?.prenom ?? '');
-  protected readonly profileLastName  = computed(() => this.currentUser()?.name ?? '');
-  protected readonly profileEmail     = computed(() => this.currentUser()?.email ?? this.authService.getEmail() ?? '');
+  protected readonly profileLastName = computed(() => this.currentUser()?.name ?? '');
+  protected readonly profileEmail = computed(() => this.currentUser()?.email ?? this.authService.getEmail() ?? '');
   protected readonly profileRoleLabel = computed(() => {
     const role = this.currentUser()?.role ?? this.authService.getRole();
     if (!role) return 'Member';
@@ -771,21 +771,21 @@ export class LayoutComponent {
     return e ? e.charAt(0).toUpperCase() : 'FL';
   });
 
-  protected readonly sidebarExpanded   = signal(false);
-  protected readonly showProfile      = signal(false);
-  protected readonly showSettings     = signal(false);
+  protected readonly sidebarExpanded = signal(false);
+  protected readonly showProfile = signal(false);
+  protected readonly showSettings = signal(false);
   protected readonly showNotifications = signal(false);
   protected readonly mobileNavOpen = signal(false);
   protected readonly settingsTab = signal<string>('profile');
   protected compactMode = false;
 
   protected readonly settingsTabs = [
-    { id: 'profile',       label: 'Profile',       icon: 'lucideUser' },
-    { id: 'appearance',    label: 'Appearance',     icon: 'lucideSun' },
-    { id: 'notifications', label: 'Notifications',  icon: 'lucideBell' },
-    { id: 'security',      label: 'Security',       icon: 'lucideKey' },
-    { id: 'billing',       label: 'Billing',        icon: 'lucideCreditCard' },
-    { id: 'danger',        label: 'Danger Zone',    icon: 'lucideTrash2' },
+    { id: 'profile', label: 'Profile', icon: 'lucideUser' },
+    { id: 'appearance', label: 'Appearance', icon: 'lucideSun' },
+    { id: 'notifications', label: 'Notifications', icon: 'lucideBell' },
+    { id: 'security', label: 'Security', icon: 'lucideKey' },
+    { id: 'billing', label: 'Billing', icon: 'lucideCreditCard' },
+    { id: 'danger', label: 'Danger Zone', icon: 'lucideTrash2' },
   ];
 
   protected readonly invoiceHistory = [
@@ -800,15 +800,15 @@ export class LayoutComponent {
 
   protected readonly themes = [
     { id: 'light' as const, label: 'Light', icon: 'lucideSun' },
-    { id: 'dark'  as const, label: 'Dark',  icon: 'lucideMoon' },
-    { id: 'system'as const, label: 'System',icon: 'lucideMonitor' },
+    { id: 'dark' as const, label: 'Dark', icon: 'lucideMoon' },
+    { id: 'system' as const, label: 'System', icon: 'lucideMonitor' },
   ];
 
   protected readonly notifPrefs = [
-    { label: 'New matches',     desc: 'When an investor matches your startup',     enabled: true  },
-    { label: 'Session reminders', desc: '1 hour before a mentoring session',        enabled: true  },
-    { label: 'Event updates',   desc: 'Changes to events you have registered for', enabled: false },
-    { label: 'Community replies', desc: 'When someone replies to your discussion',  enabled: true  },
+    { label: 'New matches', desc: 'When an investor matches your startup', enabled: true },
+    { label: 'Session reminders', desc: '1 hour before a mentoring session', enabled: true },
+    { label: 'Event updates', desc: 'Changes to events you have registered for', enabled: false },
+    { label: 'Community replies', desc: 'When someone replies to your discussion', enabled: true },
   ];
 
   protected readonly notifications = toSignal(this.notificationService.notifications$, { initialValue: [] as CommunityNotification[] });
@@ -829,12 +829,12 @@ export class LayoutComponent {
 
   protected markRead(n: CommunityNotification): void {
     const userId = this.authService.getUserId()?.toString() || '';
-    
+
     if (n.id && !n.read) {
       this.notificationService.markAsRead(n.id, userId).subscribe();
     }
 
-    // Navigation logic from PIcloud
+    // Navigation logic from pisae
     switch (n.type) {
       case NotificationType.CONNECTION_REQUEST:
         this.router.navigate(['/app/community/network/pending']);
@@ -854,7 +854,7 @@ export class LayoutComponent {
         this.router.navigate(['/app/community/reputation']);
         break;
     }
-    
+
     this.showNotifications.set(false);
   }
 
@@ -922,8 +922,8 @@ export class LayoutComponent {
   }
 
   protected readonly navItems: NavItem[] = [
-    { icon: 'lucideLayoutDashboard', label: 'Dashboard',    route: '/app/dashboard'    },
-    { icon: 'lucideUsers',           label: 'Users',         route: '/app/users',         roles: ['ADMIN'] },
+    { icon: 'lucideLayoutDashboard', label: 'Dashboard', route: '/app/dashboard' },
+    { icon: 'lucideUsers', label: 'Users', route: '/app/users', roles: ['ADMIN'] },
   ];
 
   // Filter nav items based on user role

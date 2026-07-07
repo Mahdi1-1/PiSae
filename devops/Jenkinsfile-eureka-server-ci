@@ -49,7 +49,7 @@ pipeline {
                     withSonarQubeEnv('My SonarQube Server') { // nom configuré dans Jenkins > Configure System
                         sh """
                             mvn sonar:sonar \
-                              -Dsonar.projectKey=picloud-${env.MODULE} \
+                              -Dsonar.projectKey=pisae-${env.MODULE} \
                               -Dsonar.host.url=\${SONAR_HOST_URL} \
                               -Dsonar.login=\${SONAR_TOKEN}
                         """

@@ -1,4 +1,4 @@
-# PIcloud API Permission Matrix
+# pisae API Permission Matrix
 
 ## 1) Scope and source of truth
 

@@ -1,7 +1,7 @@
 apiVersion: 1
 
 providers:
-  - name: 'PIcloud Dashboards'
+  - name: 'pisae Dashboards'
     orgId: 1
     folder: ''
     type: file

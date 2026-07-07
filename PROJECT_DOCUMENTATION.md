@@ -1,4 +1,4 @@
-# PIcloud - Professional Community Platform
+# pisae - Professional Community Platform
 
 ## Table of Contents
 1. [Project Overview](#project-overview)
@@ -14,7 +14,7 @@
 
 ## Project Overview
 
-PIcloud is a professional community platform built as a microservices architecture. It enables users to:
+pisae is a professional community platform built as a microservices architecture. It enables users to:
 - **Network** with other professionals (ETUDIANT, ENTREPRENEUR, MENTOR, INVESTISSEUR, PARTENAIRE)
 - **Post and apply for job opportunities** with AI-powered candidate matching
 - **Engage in forum discussions** within groups
@@ -31,7 +31,7 @@ PIcloud is a professional community platform built as a microservices architectu
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                         FRONTEND                                  │
-│                    Angular 17 (PIcloud)                           │
+│                    Angular 17 (pisae)                           │
 │                   http://localhost:4200                          │
 └───────────────────────────┬─────────────────────────────────────┘
                             │
@@ -614,7 +614,7 @@ XP Actions:
 
 ```
 Laast PI/
-├── PIcloud/                         # Angular Frontend
+├── pisae/                         # Angular Frontend
 │   └── src/app/
 │       ├── core/                    # Guards, interceptors, services
 │       └── modules/

@@ -137,7 +137,7 @@ export class AuthService {
   isEtudiant(): boolean { return this.getRole() === 'USER'; }
   hasLegalAccess(): boolean { return this.isEntrepreneur() || this.isExpert() || this.isAdmin(); }
 
-  // Compat: PIcloud's saveUserData
+  // Compat: pisae's saveUserData
   public saveUserData(response: AuthResponse): void {
     if (!this.isBrowser) return;
     this.saveToken(response.token);

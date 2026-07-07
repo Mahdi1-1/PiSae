@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: frontend
-  namespace: picloud
+  namespace: pisae
 spec:
   replicas: 1
   selector:
@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: <ton-dockerhub-user>/frontend:latest
+          image: mahdimasmoudi/frontend:latest
           ports:
             - containerPort: 80
           readinessProbe:
@@ -36,7 +36,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: frontend
-  namespace: picloud
+  namespace: pisae
 spec:
   selector:
     app: frontend
@@ -49,11 +49,11 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: picloud-ingress
-  namespace: picloud
+  name: pisae-ingress
+  namespace: pisae
 spec:
   rules:
-    - host: picloud.local
+    - host: pisae.local
       http:
         paths:
           - path: /
