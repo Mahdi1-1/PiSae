@@ -8,10 +8,6 @@
 pipeline {
     agent any
 
-    tools {
-        nodejs 'node-20' // configuré dans Jenkins > Global Tool Configuration
-    }
-
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
         DOCKERHUB_USER        = 'ton-dockerhub-user'
