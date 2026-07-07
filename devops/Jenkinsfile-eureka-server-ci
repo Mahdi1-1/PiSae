@@ -48,7 +48,7 @@ pipeline {
         stage('Analyse SonarQube') {
             steps {
                 dir(env.MODULE) {
-                    withSonarQubeEnv('sonarqube-local') { // nom configuré dans Jenkins > Configure System
+                    withSonarQubeEnv('My SonarQube Server') { // nom configuré dans Jenkins > Configure System
                         sh """
                             mvn sonar:sonar \
                               -Dsonar.projectKey=picloud-${env.MODULE} \

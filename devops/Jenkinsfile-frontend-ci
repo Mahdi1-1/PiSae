@@ -69,7 +69,7 @@ pipeline {
         stage('Analyse SonarQube') {
             steps {
                 dir('new-front') {
-                    withSonarQubeEnv('sonarqube-local') { // nom configuré dans Jenkins > Configure System
+                    withSonarQubeEnv('My SonarQube Server') { // nom configuré dans Jenkins > Configure System
                         // sonar-project.properties vit dans devops/frontend/, référencé explicitement
                         // pour ne pas avoir à le dupliquer dans new-front/.
                         sh '''

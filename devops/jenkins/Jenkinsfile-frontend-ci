@@ -58,7 +58,7 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 dir('new-front') {
-                    withSonarQubeEnv('sonarqube-local') {
+                    withSonarQubeEnv('My SonarQube Server') {
                         sh '''
                             npx sonar-scanner \
                               -Dproject.settings=../devops/frontend/sonar-project.properties \
