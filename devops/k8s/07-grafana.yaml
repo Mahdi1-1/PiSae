@@ -125,7 +125,8 @@ spec:
             - name: datasources
               mountPath: /etc/grafana/provisioning/datasources
             - name: dashboard-providers
-              mountPath: /etc/grafana/provisioning/dashboards
+              mountPath: /etc/grafana/provisioning/dashboards/dashboards.yml
+              subPath: dashboards.yml
             - name: dashboard-json
               mountPath: /etc/grafana/provisioning/dashboards/pisae-overview.json
               subPath: pisae-overview.json
