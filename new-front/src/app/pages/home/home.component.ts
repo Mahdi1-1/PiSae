@@ -519,6 +519,9 @@ interface LeaderboardUser {
         <!-- ══ Right Column ══ -->
         <aside style="display:flex; flex-direction:column; gap:22px;">
 
+          <!-- ══ Résumé de progression ══ -->
+          <app-resume-progression-widget></app-resume-progression-widget>
+
           <!-- ══ Quick shortcuts ══ -->
           <section class="panel">
             <div class="panel__head">

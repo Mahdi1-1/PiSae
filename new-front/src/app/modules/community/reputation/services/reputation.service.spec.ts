@@ -40,7 +40,7 @@ describe('ReputationService', () => {
       resourcesPublished: 1,
       postsCount: 3,
       commentsCount: 5,
-      lastUpdated: new Date()
+      lastUpdated: new Date().toISOString()
     };
 
     service.getReputation('user123').subscribe(rep => {
@@ -69,7 +69,7 @@ describe('ReputationService', () => {
       resourcesPublished: 1,
       postsCount: 4,
       commentsCount: 5,
-      lastUpdated: new Date()
+      lastUpdated: new Date().toISOString()
     };
 
     service.addPoints('user123', 'POST_CREATED' as any).subscribe(rep => {

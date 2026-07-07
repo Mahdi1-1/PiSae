@@ -86,6 +86,19 @@ import { AuthService } from '../../core/services/auth.service';
         ], { optional: true }),
       ]),
     ]),
+    trigger('testimonialCards', [
+      state('hidden',  style({})),
+      state('visible', style({})),
+      transition('hidden => visible', [
+        query('.tc', [
+          style({ opacity: 0, transform: 'translateY(28px)' }),
+          stagger('70ms', [
+            animate('480ms cubic-bezier(0.25,0.46,0.45,0.94)',
+              style({ opacity: 1, transform: 'translateY(0)' })),
+          ]),
+        ], { optional: true }),
+      ]),
+    ]),
     trigger('revealLeft', [
       state('hidden',  style({ opacity: 0, transform: 'translateX(-48px)' })),
       state('visible', style({ opacity: 1, transform: 'translateX(0)' })),

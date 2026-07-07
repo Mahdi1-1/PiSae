@@ -17,6 +17,7 @@ import { HomeComponent } from './pages/home/home.component';
 import { LandingLayoutComponent } from './pages/landing/landing-layout.component';
 import { LandingComponent } from './pages/landing/landing.component';
 import { ProfileComponent } from './pages/profile/profile.component';
+import { ResumeProgressionWidgetComponent } from './pages/home/components/resume-progression-widget/resume-progression-widget.component';
 import { MapComponent } from './shared/components/map/map.component'; // Add this import
 import { ToastComponent } from './shared/components/toast/toast.component';
 import { ShaderBackgroundComponent } from './shared/components/shader-background/shader-background.component';
@@ -35,6 +36,7 @@ import { RouterModule } from '@angular/router';
     LandingComponent,
     ProfileComponent,
     MapComponent,
+    ResumeProgressionWidgetComponent,
   ],
   imports: [
     BrowserModule,

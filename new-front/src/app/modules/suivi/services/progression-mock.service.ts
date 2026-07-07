@@ -160,8 +160,10 @@ export class ProgressionMockService implements ProgressionServiceContract {
     const moyenne = liste.length
       ? liste.reduce((sum, p) => sum + p.pourcentage, 0) / liste.length
       : 0;
+    // Niveau formation uniquement (chapitreId null) : une formation avec des chapitres
+    // partiellement terminés mais encore EN_COURS globalement ne doit pas compter ici.
     const formationsTerminees = new Set(
-      liste.filter(p => p.statut === 'TERMINE').map(p => p.formationId)
+      liste.filter(p => p.chapitreId === null && p.statut === 'TERMINE').map(p => p.formationId)
     ).size;
     // Temps total mocké de façon cohérente avec LogLectureMockService (voir ce fichier) :
     // ~45 minutes par formation entamée, pour un résumé plausible sans dépendre d'un autre service.
