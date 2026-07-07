@@ -52,8 +52,8 @@ pipeline {
                         sh """
                             mvn sonar:sonar \
                               -Dsonar.projectKey=picloud-${env.MODULE} \
-                              -Dsonar.host.url=http://sonarqube:9000 \
-                              -Dsonar.login=${SONAR_TOKEN}
+                              -Dsonar.host.url=\${SONAR_HOST_URL} \
+                              -Dsonar.login=\${SONAR_TOKEN}
                         """
                     }
                 }

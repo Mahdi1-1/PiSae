@@ -62,7 +62,7 @@ pipeline {
                         sh '''
                             npx sonar-scanner \
                               -Dproject.settings=../devops/frontend/sonar-project.properties \
-                              -Dsonar.host.url=http://sonarqube:9000 \
+                              -Dsonar.host.url=${SONAR_HOST_URL} \
                               -Dsonar.login=${SONAR_TOKEN}
                         '''
                     }
