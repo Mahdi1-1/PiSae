@@ -1,0 +1,72 @@
+// Pipeline CD dédié au microservice eureka-server : déploiement Kubernetes après CI réussi
+pipeline {
+    agent any
+
+    environment {
+        MODULE          = 'eureka-server'
+        DOCKERHUB_USER  = 'ton-dockerhub-user'
+        KUBECONFIG_CRED = credentials('kubeconfig-credentials') // fichier kubeconfig stocké dans Jenkins > Credentials
+        NAMESPACE       = 'picloud'
+    }
+
+    parameters {
+        string(name: 'IMAGE_TAG', defaultValue: 'latest', description: 'Tag de l\'image Docker à déployer (ex: numéro de build CI)')
+    }
+
+    stages {
+
+        stage('Checkout manifests K8s') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Vérifier le namespace') {
+            steps {
+                sh """
+                    export KUBECONFIG=${KUBECONFIG_CRED}
+                    kubectl apply -f devops/k8s/00-namespace.yaml
+                """
+            }
+        }
+
+        stage('Déployer eureka-server') {
+            steps {
+                sh """
+                    export KUBECONFIG=${KUBECONFIG_CRED}
+                    kubectl apply -f devops/k8s/02-eureka-server.yaml
+                    kubectl set image deployment/${env.MODULE} \
+                      ${env.MODULE}=${DOCKERHUB_USER}/${env.MODULE}:${params.IMAGE_TAG} \
+                      -n ${NAMESPACE}
+                """
+            }
+        }
+
+        stage('Attendre le rollout') {
+            steps {
+                sh """
+                    export KUBECONFIG=${KUBECONFIG_CRED}
+                    kubectl rollout status deployment/${env.MODULE} -n ${NAMESPACE} --timeout=120s
+                """
+            }
+        }
+
+        stage('Vérification post-déploiement') {
+            steps {
+                sh """
+                    export KUBECONFIG=${KUBECONFIG_CRED}
+                    kubectl get pods -n ${NAMESPACE} -l app=${env.MODULE}
+                """
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "CD ${env.MODULE} déployé avec succès, image tag ${params.IMAGE_TAG}"
+        }
+        failure {
+            echo "Échec du déploiement — rollback possible avec : kubectl rollout undo deployment/${env.MODULE} -n ${NAMESPACE}"
+        }
+    }
+}

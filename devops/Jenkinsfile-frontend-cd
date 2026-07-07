@@ -1,0 +1,63 @@
+// Pipeline CD Frontend : déploiement sur Kubernetes après CI réussi
+pipeline {
+    agent any
+
+    environment {
+        DOCKERHUB_USER  = 'ton-dockerhub-user'
+        KUBECONFIG_CRED = credentials('kubeconfig-credentials')
+        NAMESPACE       = 'picloud'
+    }
+
+    parameters {
+        string(name: 'IMAGE_TAG', defaultValue: 'latest', description: 'Tag de l\'image Docker à déployer')
+    }
+
+    stages {
+
+        stage('Checkout manifests K8s') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Déployer le frontend') {
+            steps {
+                sh """
+                    export KUBECONFIG=${KUBECONFIG_CRED}
+                    kubectl apply -f devops/k8s/05-frontend.yaml
+                    kubectl set image deployment/frontend \
+                      frontend=${DOCKERHUB_USER}/frontend:${params.IMAGE_TAG} \
+                      -n ${NAMESPACE}
+                """
+            }
+        }
+
+        stage('Attendre le rollout') {
+            steps {
+                sh """
+                    export KUBECONFIG=${KUBECONFIG_CRED}
+                    kubectl rollout status deployment/frontend -n ${NAMESPACE} --timeout=120s
+                """
+            }
+        }
+
+        stage('Vérification post-déploiement') {
+            steps {
+                sh """
+                    export KUBECONFIG=${KUBECONFIG_CRED}
+                    kubectl get pods -n ${NAMESPACE} -l app=frontend
+                    kubectl get svc frontend -n ${NAMESPACE}
+                """
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "CD frontend déployé avec succès, image tag ${params.IMAGE_TAG}"
+        }
+        failure {
+            echo "Échec du déploiement — rollback possible avec : kubectl rollout undo deployment/frontend"
+        }
+    }
+}
