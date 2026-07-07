@@ -1,12 +1,8 @@
 // Pipeline CI Frontend (Angular "FoundersLab", new-front/)
-// npm install + lint + tests unitaires (Vitest via @angular/build:unit-test) + SonarQube + Docker image
+// npm install + lint + tests unitaires + SonarQube + Docker build & push
 //
-// Version corrigée — harmonisée avec le pattern React qui fonctionne
-// Problèmes résolus :
-// ✅ Fixé : post { always { sh ... } } qui manquait de contexte node
-// ✅ Simplifié : utilisation de cleanWs() au lieu de sh 'docker logout'
-// ✅ Robusté : Quality Gate ne casse pas le pipeline
-// ✅ Clair : allowEmptyResults pour junit
+// ✅ VRAIMENT FIXÉ : cleanWs() est dans le post du dernier stage (contexte node disponible)
+// Les posts globaux ne font que des echo (pas besoin de contexte)
 
 pipeline {
     agent any
@@ -119,14 +115,18 @@ pipeline {
                 sh "docker push ${DOCKERHUB_USER}/frontend:latest"
                 sh 'docker logout || true'
             }
+            // ✅ cleanWs() ICI — dans le contexte du node du stage
+            post {
+                always {
+                    cleanWs()
+                }
+            }
         }
 
     }
 
+    // ✅ Post global ne fait que des echo (pas besoin de contexte node)
     post {
-        always {
-            cleanWs()
-        }
         success {
             echo "✅ CI frontend terminé avec succès — build #${BUILD_NUMBER}"
         }
