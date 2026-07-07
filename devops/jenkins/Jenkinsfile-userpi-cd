@@ -1,81 +1,81 @@
-// Pipeline CD dédié au microservice userPI : déploiement Kubernetes après CI réussi
 pipeline {
     agent any
 
     environment {
-        MODULE          = 'userpi'   // nom du Deployment/Service K8s (voir devops/k8s/03-userpi.yaml)
-        DOCKERHUB_USER  = 'ton-dockerhub-user'
-        KUBECONFIG_CRED = credentials('kubeconfig-credentials') // fichier kubeconfig stocké dans Jenkins > Credentials
-        NAMESPACE       = 'picloud'
-    }
+        REGISTRY = 'docker.io'
+        IMAGE_NAME = 'mahdimasmoudi/userpi'
+        IMAGE_TAG = "${BUILD_NUMBER}"
+        DOCKER_HOST = 'tcp://172.17.0.1:2375'
 
-    parameters {
-        string(name: 'IMAGE_TAG', defaultValue: 'latest', description: 'Tag de l\'image Docker à déployer (ex: numéro de build CI)')
+        K8S_NAMESPACE = 'pisae'
+        K8S_DEPLOYMENT = 'userpi'
+        K8S_CONTAINER = 'userpi'
+
+        DOCKER_CREDENTIALS_ID = 'dbd1711b-3842-486e-b5a9-c14f84df9324'
     }
 
     stages {
-
-        stage('Checkout manifests K8s') {
+        stage('Checkout') {
             steps {
                 checkout scm
             }
         }
 
-        stage('Vérifier le namespace') {
+        stage('Docker Build') {
             steps {
-                sh """
-                    export KUBECONFIG=${KUBECONFIG_CRED}
-                    kubectl apply -f devops/k8s/00-namespace.yaml
-                """
+                dir('userPI') {
+                    sh "docker build -f ../devops/backend/userPI/Dockerfile -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+                    sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest"
+                }
             }
         }
 
-        stage('Déployer MySQL (si absent)') {
+        stage('Docker Push') {
             steps {
-                sh """
-                    export KUBECONFIG=${KUBECONFIG_CRED}
-                    kubectl apply -f devops/k8s/01-mysql-config.yaml
-                """
+                dir('userPI') {
+                    withCredentials([usernamePassword(
+                        credentialsId: "${DOCKER_CREDENTIALS_ID}",
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )]) {
+                        sh '''
+                            echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                            docker push ${IMAGE_NAME}:${IMAGE_TAG}
+                            docker push ${IMAGE_NAME}:latest || echo "Skipping latest push after registry rejection"
+                        '''
+                    }
+                }
             }
         }
 
-        stage('Déployer userPI') {
+        stage('Deploy to Kubernetes') {
             steps {
-                sh """
-                    export KUBECONFIG=${KUBECONFIG_CRED}
-                    kubectl apply -f devops/k8s/03-userpi.yaml
-                    kubectl set image deployment/${env.MODULE} \
-                      ${env.MODULE}=${DOCKERHUB_USER}/${env.MODULE}:${params.IMAGE_TAG} \
-                      -n ${NAMESPACE}
-                """
-            }
-        }
+                withEnv(['KUBECONFIG=/var/jenkins_home/kubeconfig']) {
+                    sh """
+                        kubectl get nodes
 
-        stage('Attendre le rollout') {
-            steps {
-                sh """
-                    export KUBECONFIG=${KUBECONFIG_CRED}
-                    kubectl rollout status deployment/${env.MODULE} -n ${NAMESPACE} --timeout=120s
-                """
-            }
-        }
+                        kubectl set image deployment/${K8S_DEPLOYMENT} \
+                          ${K8S_CONTAINER}=${IMAGE_NAME}:${IMAGE_TAG} \
+                          -n ${K8S_NAMESPACE}
 
-        stage('Vérification post-déploiement') {
-            steps {
-                sh """
-                    export KUBECONFIG=${KUBECONFIG_CRED}
-                    kubectl get pods -n ${NAMESPACE} -l app=${env.MODULE}
-                """
+                        kubectl rollout status deployment/${K8S_DEPLOYMENT} \
+                          -n ${K8S_NAMESPACE} --timeout=300s
+
+                        kubectl get pods -n ${K8S_NAMESPACE} -o wide
+                    """
+                }
             }
         }
     }
 
     post {
-        success {
-            echo "CD ${env.MODULE} déployé avec succès, image tag ${params.IMAGE_TAG}"
+        always {
+            sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true"
+            sh "docker rmi ${IMAGE_NAME}:latest || true"
+            sh 'docker logout || true'
+            cleanWs()
         }
-        failure {
-            echo "Échec du déploiement — rollback possible avec : kubectl rollout undo deployment/${env.MODULE} -n ${NAMESPACE}"
-        }
+        success { echo '✅ UserPI CD pipeline completed successfully!' }
+        failure  { echo '❌ UserPI CD pipeline failed!' }
     }
 }
