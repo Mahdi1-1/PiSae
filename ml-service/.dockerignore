@@ -1,0 +1,9 @@
+data/
+notebooks/
+reports/
+models/model_*.joblib
+models/top_universities.joblib
+models/champion_model.txt
+__pycache__/
+*.pyc
+.venv/
