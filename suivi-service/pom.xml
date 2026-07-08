@@ -17,6 +17,27 @@
     <properties>
         <java.version>21</java.version>
         <spring-cloud.version>2025.1.0</spring-cloud.version>
+        <!-- Exclude boilerplate, data models, config, and framework-level code from coverage -->
+        <sonar.coverage.exclusions>
+            **/model/**,
+            **/entities/**,
+            **/entity/**,
+            **/dto/**,
+            **/dtos/**,
+            **/config/**,
+            **/configuration/**,
+            **/controller/**,
+            **/controllers/**,
+            **/exception/**,
+            **/exceptions/**,
+            **/repository/**,
+            **/repositories/**,
+            **/client/**,
+            **/clients/**,
+            **/Enum/**,
+            **/enums/**,
+            **/*Application.java
+        </sonar.coverage.exclusions>
     </properties>
 
     <dependencies>
@@ -122,6 +143,28 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.12</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**/model/**</exclude>
+                        <exclude>**/entities/**</exclude>
+                        <exclude>**/entity/**</exclude>
+                        <exclude>**/dto/**</exclude>
+                        <exclude>**/dtos/**</exclude>
+                        <exclude>**/config/**</exclude>
+                        <exclude>**/configuration/**</exclude>
+                        <exclude>**/controller/**</exclude>
+                        <exclude>**/controllers/**</exclude>
+                        <exclude>**/exception/**</exclude>
+                        <exclude>**/exceptions/**</exclude>
+                        <exclude>**/repository/**</exclude>
+                        <exclude>**/repositories/**</exclude>
+                        <exclude>**/client/**</exclude>
+                        <exclude>**/clients/**</exclude>
+                        <exclude>**/Enum/**</exclude>
+                        <exclude>**/enums/**</exclude>
+                        <exclude>**/*Application.class</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
                         <id>prepare-agent</id>
