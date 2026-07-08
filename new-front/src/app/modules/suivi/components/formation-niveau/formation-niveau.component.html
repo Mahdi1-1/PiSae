@@ -1,0 +1,56 @@
+<div class="niveau-tab">
+
+  <section class="section">
+    <h2 class="section__titre">Est-ce le bon niveau pour vous ?</h2>
+    <p class="section__intro">
+      Indiquez votre niveau pour comparer le contenu de cette formation à vos compétences actuelles.
+    </p>
+
+    <form class="formulaire-niveau" (ngSubmit)="verifierNiveau()">
+      <div class="champ">
+        <label class="champ__label" for="learnerLevel">Mon niveau</label>
+        <select
+          id="learnerLevel"
+          class="champ__select"
+          [formControl]="formulaire.controls.learnerLevel">
+          <option *ngFor="let niveau of niveaux" [value]="niveau">{{ libelleNiveau(niveau) }}</option>
+        </select>
+      </div>
+
+      <button type="submit" class="bouton-soumettre" [disabled]="loadingMatch">
+        {{ loadingMatch ? 'Vérification...' : 'Vérifier la compatibilité' }}
+      </button>
+    </form>
+
+    <div *ngIf="erreurMatch && !loadingMatch" class="etat-message etat-message--erreur">
+      <p>{{ erreurMatch }}</p>
+      <button type="button" class="bouton-reessayer" (click)="verifierNiveau()">Réessayer</button>
+    </div>
+
+    <div *ngIf="resultat && !loadingMatch && !erreurMatch" class="resultat">
+      <div class="resultat__ligne">
+        <span class="resultat__label">Niveau de la formation</span>
+        <span class="badge">{{ libelleNiveau(resultat.difficultyUsed) }}</span>
+      </div>
+
+      <div class="resultat__ligne">
+        <span class="resultat__label">Compatibilité avec votre niveau</span>
+        <div class="resultat__score">
+          <div class="resultat__score-fond">
+            <div class="resultat__score-barre" [style.width.%]="scorePourcent(resultat.matchScore)"></div>
+          </div>
+          <span class="resultat__score-valeur">{{ scorePourcent(resultat.matchScore) }}%</span>
+        </div>
+      </div>
+
+      <div class="resultat__ligne" *ngIf="resultat.confidence !== null">
+        <span class="resultat__label">Confiance de l'estimation</span>
+        <span>{{ scorePourcent(resultat.confidence) }}%</span>
+      </div>
+
+      <p class="resultat__source">{{ libelleSource(resultat.source) }}</p>
+    </div>
+
+  </section>
+
+</div>

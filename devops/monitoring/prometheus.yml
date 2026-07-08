@@ -24,6 +24,13 @@ scrape_configs:
         labels:
           service: 'userpi'
 
+  - job_name: 'suivi-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['suivi-service:8083']
+        labels:
+          service: 'suivi-service'
+
   - job_name: 'prometheus'
     static_configs:
       - targets: ['localhost:9090']

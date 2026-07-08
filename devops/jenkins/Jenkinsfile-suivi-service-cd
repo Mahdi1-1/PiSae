@@ -1,0 +1,81 @@
+pipeline {
+    agent any
+
+    environment {
+        REGISTRY = 'docker.io'
+        IMAGE_NAME = 'mahdimasmoudi/suivi-service'
+        IMAGE_TAG = "${BUILD_NUMBER}"
+        DOCKER_HOST = 'tcp://172.17.0.1:2375'
+
+        K8S_NAMESPACE = 'pisae'
+        K8S_DEPLOYMENT = 'suivi-service'
+        K8S_CONTAINER = 'suivi-service'
+
+        DOCKER_CREDENTIALS_ID = 'dbd1711b-3842-486e-b5a9-c14f84df9324'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                dir('suivi-service') {
+                    sh "docker build -f ../devops/backend/suivi-service/Dockerfile -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+                    sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest"
+                }
+            }
+        }
+
+        stage('Docker Push') {
+            steps {
+                dir('suivi-service') {
+                    withCredentials([usernamePassword(
+                        credentialsId: "${DOCKER_CREDENTIALS_ID}",
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )]) {
+                        sh '''
+                            echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                            docker push ${IMAGE_NAME}:${IMAGE_TAG}
+                            docker push ${IMAGE_NAME}:latest || echo "Skipping latest push after registry rejection"
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                withEnv(['KUBECONFIG=/var/jenkins_home/kubeconfig']) {
+                    sh """
+                        kubectl get nodes
+
+                        kubectl set image deployment/${K8S_DEPLOYMENT} \
+                          ${K8S_CONTAINER}=${IMAGE_NAME}:${IMAGE_TAG} \
+                          -n ${K8S_NAMESPACE}
+
+                        kubectl rollout status deployment/${K8S_DEPLOYMENT} \
+                          -n ${K8S_NAMESPACE} --timeout=300s
+
+                        kubectl get pods -n ${K8S_NAMESPACE} -o wide
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true"
+            sh "docker rmi ${IMAGE_NAME}:latest || true"
+            sh 'docker logout || true'
+            cleanWs()
+        }
+        success { echo '✅ Suivi Service CD pipeline completed successfully!' }
+        failure  { echo '❌ Suivi Service CD pipeline failed!' }
+    }
+}

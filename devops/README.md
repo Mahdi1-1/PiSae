@@ -14,8 +14,10 @@ devops/
 │   ├── api-gateway/Dockerfile
 │   ├── userPI/
 │   │   ├── Dockerfile
-│   │   └── pom-jacoco-snippet.xml   → référence, déjà appliqué dans les 3 pom.xml
-│   └── EXPOSER-METRICS-PROMETHEUS.md → référence, déjà appliqué dans les 3 modules
+│   │   └── pom-jacoco-snippet.xml   → référence, déjà appliqué dans les pom.xml
+│   ├── suivi-service/
+│   │   └── Dockerfile
+│   └── EXPOSER-METRICS-PROMETHEUS.md → référence, déjà appliqué dans les modules
 ├── frontend/
 │   ├── Dockerfile
 │   ├── nginx.conf
@@ -28,7 +30,8 @@ devops/
 │   ├── 04-api-gateway.yaml
 │   ├── 05-frontend.yaml             (+ Ingress optionnel)
 │   ├── 06-prometheus.yaml
-│   └── 07-grafana.yaml
+│   ├── 07-grafana.yaml
+│   └── 08-suivi-service.yaml
 ├── sonarqube/
 │   └── docker-compose.yml
 ├── monitoring/
@@ -38,11 +41,12 @@ devops/
     ├── Jenkinsfile-eureka-server-ci / -cd
     ├── Jenkinsfile-api-gateway-ci / -cd
     ├── Jenkinsfile-userpi-ci / -cd
+    ├── Jenkinsfile-suivi-service-ci / -cd
     ├── Jenkinsfile-frontend-ci / -cd
 ```
 
-Chaque microservice backend a son propre pipeline CI et CD (3 microservices × 2 = 6 pipelines),
-plus CI/CD pour le frontend — 8 pipelines au total, comme demandé.
+Chaque microservice backend a son propre pipeline CI et CD (4 microservices × 2 = 8 pipelines),
+plus CI/CD pour le frontend — 10 pipelines au total, comme demandé.
 
 `k8s/06-prometheus.yaml` et `k8s/07-grafana.yaml` déploient Prometheus + Grafana directement sur
 le cluster (config intégrée en ConfigMap) — les fichiers de `monitoring/` ne sont qu'une
@@ -84,7 +88,7 @@ sudo sysctl -w vm.max_map_count=262144
 - JDK 21 → nommé `jdk-21`
 - NodeJS 20 → nommé `node-20`
 
-### 4. Créer les 8 pipelines Jenkins
+### 4. Créer les 10 pipelines Jenkins
 Pour chacun : *New Item > Pipeline*, puis dans *Pipeline > Definition* choisir "Pipeline script from SCM", pointer sur ton repo Git, et renseigner le bon *Script Path* :
 
 | Pipeline | Script Path |
@@ -95,6 +99,8 @@ Pour chacun : *New Item > Pipeline*, puis dans *Pipeline > Definition* choisir "
 | `api-gateway-cd` | `devops/jenkins/Jenkinsfile-api-gateway-cd` |
 | `userpi-ci` | `devops/jenkins/Jenkinsfile-userpi-ci` |
 | `userpi-cd` | `devops/jenkins/Jenkinsfile-userpi-cd` |
+| `suivi-service-ci` | `devops/jenkins/Jenkinsfile-suivi-service-ci` |
+| `suivi-service-cd` | `devops/jenkins/Jenkinsfile-suivi-service-cd` |
 | `frontend-ci` | `devops/jenkins/Jenkinsfile-frontend-ci` |
 | `frontend-cd` | `devops/jenkins/Jenkinsfile-frontend-cd` |
 

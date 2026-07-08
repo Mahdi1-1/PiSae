@@ -7,6 +7,8 @@ import { LOG_LECTURE_SERVICE, LogLectureService } from '../../modules/suivi/serv
 import { LogLectureMockService } from '../../modules/suivi/services/log-lecture-mock.service';
 import { PROGRESSION_SERVICE, ProgressionService } from '../../modules/suivi/services/progression.service';
 import { ProgressionMockService } from '../../modules/suivi/services/progression-mock.service';
+import { RECOMMENDATION_SERVICE, RecommendationService } from '../../modules/suivi/services/recommendation.service';
+import { RecommendationMockService } from '../../modules/suivi/services/recommendation-mock.service';
 
 // Bascule mock/réel unique pour tout le module suivi, pilotée par environment.useMocks.
 // Enregistré au niveau racine (AppModule) plutôt que dans un module lazy-loadé "suivi" :
@@ -30,6 +32,12 @@ export const SUIVI_PROVIDERS: Provider[] = [
     provide: AVIS_SERVICE,
     useFactory: (http: HttpClient) =>
       environment.useMocks ? new AvisMockService() : new AvisService(http),
+    deps: [HttpClient],
+  },
+  {
+    provide: RECOMMENDATION_SERVICE,
+    useFactory: (http: HttpClient) =>
+      environment.useMocks ? new RecommendationMockService() : new RecommendationService(http),
     deps: [HttpClient],
   },
 ];

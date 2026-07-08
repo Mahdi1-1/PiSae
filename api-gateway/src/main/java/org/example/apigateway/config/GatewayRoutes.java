@@ -52,4 +52,16 @@ public class GatewayRoutes {
                 .filter(lb("community-service"))
                 .filter(authFilter.jwtFilter());
     }
+
+    @Bean
+    public RouterFunction<ServerResponse> suiviServiceRoute() {
+        return RouterFunctions
+                .route(path("/api/progression/**")
+                                .or(path("/api/avis/**"))
+                                .or(path("/api/logs/**"))
+                                .or(path("/api/recommendation/**")),
+                        HandlerFunctions.http())
+                .filter(lb("suivi-service"))
+                .filter(authFilter.jwtFilter());
+    }
 }

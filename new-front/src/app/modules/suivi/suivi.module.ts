@@ -6,6 +6,7 @@ import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { HlmProgressImports } from '@spartan-ng/helm/progress';
 import { FormationAvisComponent } from './components/formation-avis/formation-avis.component';
 import { FormationDetailComponent } from './components/formation-detail/formation-detail.component';
+import { FormationNiveauComponent } from './components/formation-niveau/formation-niveau.component';
 import { FormationProgressionCardComponent } from './components/formation-progression-card/formation-progression-card.component';
 import { FormationProgressionDetailComponent } from './components/formation-progression-detail/formation-progression-detail.component';
 import { MesFormationsComponent } from './components/mes-formations/mes-formations.component';
@@ -19,6 +20,7 @@ import { SuiviRoutingModule } from './suivi-routing.module';
     FormationDetailComponent,
     FormationProgressionDetailComponent,
     FormationAvisComponent,
+    FormationNiveauComponent,
     StarRatingComponent,
   ],
   imports: [

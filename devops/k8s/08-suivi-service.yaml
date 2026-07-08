@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: suivi-service
+  namespace: pisae
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: suivi-service
+  template:
+    metadata:
+      labels:
+        app: suivi-service
+    spec:
+      containers:
+        - name: suivi-service
+          image: mahdimasmoudi/suivi-service:latest
+          ports:
+            - containerPort: 8083
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:mysql://mysql:3306/suivi_db?createDatabaseIfNotExist=true"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "root"
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_ROOT_PASSWORD
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: "http://eureka-server:8761/eureka/"
+            - name: ML_SERVICE_URL
+              value: "http://ml-service:8000"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8083
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8083
+            initialDelaySeconds: 40
+            periodSeconds: 15
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: suivi-service
+  namespace: pisae
+spec:
+  selector:
+    app: suivi-service
+  ports:
+    - port: 8083
+      targetPort: 8083
+  type: ClusterIP

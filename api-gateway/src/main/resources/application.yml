@@ -18,6 +18,12 @@ spring:
               - Path=/api/community/**
             filters:
               - StripPrefix=0
+          - id: suivi-service
+            uri: http://localhost:8083
+            predicates:
+              - Path=/api/progression/**, /api/avis/**, /api/logs/**, /api/recommendation/**
+            filters:
+              - StripPrefix=0
 
 eureka:
   client:

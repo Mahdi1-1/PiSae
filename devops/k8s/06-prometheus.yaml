@@ -30,6 +30,13 @@ data:
           - targets: ['userpi:8081']
             labels:
               service: 'userpi'
+
+      - job_name: 'suivi-service'
+        metrics_path: '/actuator/prometheus'
+        static_configs:
+          - targets: ['suivi-service:8083']
+            labels:
+              service: 'suivi-service'
 ---
 apiVersion: apps/v1
 kind: Deployment

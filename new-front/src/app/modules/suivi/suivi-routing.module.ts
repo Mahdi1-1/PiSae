@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { FormationAvisComponent } from './components/formation-avis/formation-avis.component';
 import { FormationDetailComponent } from './components/formation-detail/formation-detail.component';
+import { FormationNiveauComponent } from './components/formation-niveau/formation-niveau.component';
 import { FormationProgressionDetailComponent } from './components/formation-progression-detail/formation-progression-detail.component';
 import { MesFormationsComponent } from './components/mes-formations/mes-formations.component';
 
@@ -14,6 +15,7 @@ const routes: Routes = [
       { path: '', redirectTo: 'progression', pathMatch: 'full' },
       { path: 'progression', component: FormationProgressionDetailComponent },
       { path: 'avis', component: FormationAvisComponent },
+      { path: 'niveau', component: FormationNiveauComponent },
     ],
   },
 ];
